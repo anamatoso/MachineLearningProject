@@ -1,18 +1,22 @@
 #%% Import Libraries
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 #%% Load testing and training data
-x_test_1=np.load("/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Xtest_Regression_Part1.npy")
-x_train_1=np.load("/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Xtrain_Regression_Part1.npy")
-y_train_1=np.load('/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Ytrain_Regression_Part1.npy')
+cd = os.getcwd() #current directory
+x_test_1=np.load(cd+"/Data/Xtest_Regression_Part1.npy")
+x_train_1=np.load(cd+"/Data/Xtrain_Regression_Part1.npy")
+y_train_1=np.load(cd+"/Data/Ytrain_Regression_Part1.npy")
 
-x_test_2=np.load("/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Xtest_Regression_Part2.npy")
-x_train_2=np.load("/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Xtrain_Regression_Part2.npy")
-y_train_2=np.load("/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/Projeto/Ytrain_Regression_Part2.npy")
+x_test_2=np.load(cd+"/Data/Xtest_Regression_Part2.npy")
+x_train_2=np.load(cd+"/Data/Xtrain_Regression_Part2.npy")
+y_train_2=np.load(cd+"/Data/Ytrain_Regression_Part2.npy")
 
-#Plot each feature vs outcome
+
+
+#%%Plot each feature vs outcome
 for i in range(20):
     x=x_train_1[:,i]
     plt.figure()
