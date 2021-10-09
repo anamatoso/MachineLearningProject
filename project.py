@@ -100,6 +100,10 @@ def crossvalidation(k,x_train,y_train):
             
             xtrain=xtrain[fold:,:]
             ytrain=ytrain[fold:,:]
+            
+            x_train = np.empty((k,c-fold,fold)) #cada elemento desta lista tem o set de treino com um excluido
+            for i in range(k):
+                x_train[i,:,:] = [item for item in x_train1 if np.where(x_train1 == item)[0][0] not in range(i*fold,i*fold+fold)]           
 
             #test
             ytest_pred= lrpredictor(xtrain,ytrain,xtest)
