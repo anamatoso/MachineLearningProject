@@ -13,7 +13,7 @@ x_test_2=np.load(cd+"/Data/Xtest_Regression_Part2.npy")
 x_train_2=np.load(cd+"/Data/Xtrain_Regression_Part2.npy")
 y_train_2=np.load(cd+"/Data/Ytrain_Regression_Part2.npy")
 
-
+del cd
 
 #%%Plot each feature vs outcome
 # for i in range(20):
