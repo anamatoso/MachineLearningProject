@@ -21,7 +21,7 @@ x_test2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/M
 
 # PREDICTOR 1: LINEAR REGRESSION
 
-# calculate parameters using normal equations
+# calculate parameters using normal equations (in lr now)
 def lr_par(xt, yt):
     # given train sets xt and outcomes yt, determine beta parameters for predictor
     # design matrix
@@ -34,40 +34,71 @@ def lr_par(xt, yt):
     return beta
     
 def lr(beta,xt):
-    # given train set xt and beta parameters, predict y
+    # using the test set xt and the determined beta parameters, predict y
     c = len(xt)
+    
+    # use beta parameters to determine y using x testing set    
     X = np.append(np.ones((c,1)),xt,axis=1)
     return np.matmul(X,beta)
 
-y_test1 = lr(lr_par(x_train1,y_train1),x_test1) #outcomes predicted using linear regression model 
+def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
+    y_test=lr(lr_par(xt,yt),x_test)
+    return y_test
+
+def sse(y,yt):
+    # calculate the squared erros using the training set yt when compared to a predicted set in y
+    # yt: training set
+    # y: test/ predicted set
+    return np.array((yt-y)**2).sum()
 
 # CROSS VALIDATION
-
-#xtrain = [item for item in Xpart if i!=Xpart.index(item)]
-def cross_val(xt,k):
+def cross_val(xt,yt,k):
+    # train the data set using k data sets obtained by dividing the training 
+    # set into k sets each with a section excluded to use as a test set. This 
+    # is used to evaluate the performance of the model usingthe available data set.
     # xt: training set
+    # yt: test set
     # k: number of folds
-    k = 5
-    c = 100
-    fold = 20
     
-    i=1 - 0-19 n:n+fold, n=0
-    i=2 - 20-39 n:n+fold n=20
-    i=3 - 40-59 n:n+fold n=40
-    i=4 - 60-79 n:n+fold n=60
-    i=5 - 80-99 n:n+fold n=80
+    c = len(xt) #length of training set
     
-    
-    k = 5
-    xt = x_train1
-    fold = 20
-    x_train = [] #cada elemento desta lista tem o set de treino com um excluido
-    #fold_idx = range(0,c,fold) #vector with start indexes
+    if (c%k)!=0:
+        print("Cannot compute. Choose a divider of "+str(c))
+        return
+    elif k==1:
+        print("Cannot perform 1-fold classification since there is no test set.")
+        return
+    else:
+        fold = c//k
+        f=len(xt[0])
+        
+        # create training sets with missing test element    
+        x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
+        y_train = np.empty((k,c-fold)) 
+        for i in range(k):
+            x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]
+            y_train[i,:] = [item for item in yt if np.where(yt == item)[0][0] not in range(i*fold,i*fold+fold)]
+
+    # using the predictor, generate the outcomes using the k different sets determined agove
+    y_test = np.empty((k,c-fold))
     for i in range(k):
-        x_train = x_train + [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold-1)] # items do xt cujos idicis são diferentes de n:n+fold
+        y_test[i,:] = lrpredictor(xt,yt,x_train[i,:,:]) #outcomes predicted using linear regression model 
 
-
-
-
-
-
+    # compute errors for each set
+    errors = np.empty(k)
+    for i in range(k):
+        errors[i] = sse(y_train[i,:],y_test[i,:])
+        
+    print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
+    return errors       
+    
+cross_val(x_train1,y_train1,5)   
+        
+        
+        
+        
+        
+        
+        
+        
+        
