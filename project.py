@@ -101,9 +101,11 @@ def crossvalidation(k,x_train,y_train):
             ytrain=ytrain[fold:,:]
             
             # INÊS
-            x_train = np.empty((k,c-fold,fold)) #cada elemento desta lista tem o set de treino com um excluido
+            x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
+            y_train = np.empty((k,c-fold)) 
             for i in range(k):
-                x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]           
+                x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]
+                y_train[i,:] = [item for item in yt if np.where(yt == item)[0][0] not in range(i*fold,i*fold+fold)]          
 
             #test
             ytest_pred= lrpredictor(xtrain,ytrain,xtest)
@@ -114,7 +116,85 @@ def crossvalidation(k,x_train,y_train):
             
     print("The mean SSE for "+str(k)+" folds is "+str(np.mean(sse_vector)))
     return sse_vector                                                
-                    
+
+#%% ANA VÊ ESTA SECÇÃO
+    # continuei o que estava a fazer a pouco e vou por aqui as funções que sairam de lá para compararmos e escolhermos uma            
+
+# PREDICTOR 1: LINEAR REGRESSION
+
+# calculate parameters using normal equations (in lr now)
+def lr_par(xt, yt):
+    # given train sets xt and outcomes yt, determine beta parameters for predictor
+    # design matrix
+    c = len(xt)
+    X = np.append(np.ones((c,1)),xt,axis=1)
+    Xtrans = np.transpose(X)
+    
+    # use normal equation to determine beta parameters
+    beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans, X)),Xtrans),yt)
+    return beta
+    
+def lr(beta,xt):
+    # using the test set xt and the determined beta parameters, predict y
+    c = len(xt)
+    
+    # use beta parameters to determine y using x testing set    
+    X = np.append(np.ones((c,1)),xt,axis=1)
+    return np.matmul(X,beta)
+
+def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
+    y_test=lr(lr_par(xt,yt),x_test)
+    return y_test
+
+def sse(y,yt):
+    # calculate the squared erros using the training set yt when compared to a predicted set in y
+    # yt: training set
+    # y: test/ predicted set
+    return np.array((yt-y)**2).sum()
+
+# CROSS VALIDATION
+def cross_val(xt,yt,k):
+    # train the data set using k data sets obtained by dividing the training 
+    # set into k sets each with a section excluded to use as a test set. This 
+    # is used to evaluate the performance of the model usingthe available data set.
+    # xt: training set
+    # yt: test set
+    # k: number of folds
+    
+    c = len(xt) #length of training set
+    
+    if (c%k)!=0:
+        print("Cannot compute. Choose a divider of "+str(c))
+        return
+    elif k==1:
+        print("Cannot perform 1-fold classification since there is no test set.")
+        return
+    else:
+        fold = c//k
+        f=len(xt[0])
+        
+        # create training sets with missing test element    
+        x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
+        y_train = np.empty((k,c-fold)) 
+        for i in range(k):
+            x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]
+            y_train[i,:] = [item for item in yt if np.where(yt == item)[0][0] not in range(i*fold,i*fold+fold)]
+
+    # using the predictor, generate the outcomes using the k different sets determined agove
+    y_test = np.empty((k,c-fold))
+    for i in range(k):
+        y_test[i,:] = lrpredictor(xt,yt,x_train[i,:,:]) #outcomes predicted using linear regression model 
+
+    # compute errors for each set
+    errors = np.empty(k)
+    for i in range(k):
+        errors[i] = sse(y_train[i,:],y_test[i,:])
+        
+    print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
+    return errors       
+    
+cross_val(x_train1,y_train1,5)   
+
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
 crossvalidation(2,x_train_1,y_train_1) 
