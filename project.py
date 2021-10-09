@@ -105,19 +105,19 @@ def crossvalidation(k,x_train,y_train):
             ytest_pred= lrpredictor(xtrain,ytrain,xtest)
                     
             # calculate sum of squared errors
-            sse=calcsse(ytest_pred,ytest_true)
+            sse=calcsse(ytest_pred,ytest_true)/fold # normalized by the size of each fold
             sse_vector=sse_vector+[sse]
             
     print("The mean SSE for "+str(k)+" folds is "+str(np.mean(sse_vector)))
     return sse_vector                                                
                     
-# Test function
+#%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
 crossvalidation(2,x_train_1,y_train_1) 
 crossvalidation(5,x_train_1,y_train_1)               
 crossvalidation(10,x_train_1,y_train_1)               
 crossvalidation(20,x_train_1,y_train_1)
-crossvalidation(100,x_train_1,y_train_1)                    
+a=crossvalidation(100,x_train_1,y_train_1)                    
 crossvalidation(15,x_train_1,y_train_1)     
           
 
