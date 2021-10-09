@@ -60,7 +60,7 @@ def cross_val(xt,k):
     x_train = [] #cada elemento desta lista tem o set de treino com um excluido
     fold_idx = range(0,c,fold) #vector with start indexes
     for i in range(k):
-        x_train[i] = [item for item in xt if index(item)!=] # items do xt cujos idicis são diferentes de n:n+fold
+        x_train[i] = [item for item in xt if  np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold-1)] # items do xt cujos idicis são diferentes de n:n+fold
 
 
 
