@@ -224,12 +224,12 @@ crossvalidation(15,x_train_1,y_train_1)
 #%% Using cross-validation, determine the best lambda for ridge regression
 l = np.array([1e-6,1e-4,1e-2,1,10,100]) #array of lambda values to test
 
-def lamdb(xt,yt,l):
+def best_lambda(xt,yt,l):
     l_sse = np.empty(len(l))
-    for i in l:
-        l_sse[i] = np.mean(cross_val(x_train1,y_train1,5,'ridge',i))
-    return print('The lambda value that provides the lower SSE error is '+str(l[np.where(l_sse == l_sse.min())[0][0]])                    
+    for i in range(len(l)):
+        l_sse[i] = np.mean(cross_val(x_train1,y_train1,5,'ridge',l[i]))
+    return l[np.where(l_sse == l_sse.min())[0][0]]
 
-lamdb(x_train1,y_train1,l)              
+best_lambda(x_train1,y_train1,l)
                     
         
