@@ -109,13 +109,6 @@ def crossvalidation(k,x_train,y_train):
             
             xtrain=xtrain[fold:,:]
             ytrain=ytrain[fold:,:]
-            
-            # INÊS
-            x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
-            y_train = np.empty((k,c-fold)) 
-            for i in range(k):
-                x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]
-                y_train[i,:] = [item for item in yt if np.where(yt == item)[0][0] not in range(i*fold,i*fold+fold)]          
 
             #test
             ytest_pred= lrpredictor(xtrain,ytrain,xtest)
@@ -156,6 +149,11 @@ def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
     y_test = lr(lr_par(xt,yt),x_test)
     return y_test
 
+# PREDICTOR 2: RIDGE REGRESSION
+def ridge_par(xt,yt):
+
+    
+#SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
     # yt: training set
