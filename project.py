@@ -153,6 +153,17 @@ def ridge_par(xt,yt,l):
 def ridgepredictor(xt,yt,l,x_test):
     return lr(ridge_par(xt,yt,l),x_test)
 
+
+# PREDICTOR 3: LASSO REGRESSION
+# from sklearn.preprocessing import linear_model
+def lassopredictor(xt,yt,l,xtest):
+    #l=lambda
+    lassoreg = linear_model.Lasso(alpha=l)    
+    lassoreg.fit(xt,yt)
+    return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
+
+
+
 #SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
@@ -197,10 +208,17 @@ def cross_val(xt,yt,k,func,l):
         y_pred = np.empty((k,fold))
         for i in range(k):
             y_pred[i,:] = lrpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
     elif func == 'ridge':
         y_pred = np.empty((k,fold))
         for i in range(k):
             y_pred[i,:] = ridgepredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'lasso':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = lassopredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
+    
     
     # compute errors for each set
     errors = np.empty(k)
@@ -210,7 +228,7 @@ def cross_val(xt,yt,k,func,l):
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
     return errors       
     
-#cross_val(x_train_1,y_train_1,5)   
+cross_val(x_train_1,y_train_1,5,'lasso',1)   
 
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
