@@ -125,17 +125,13 @@ def crossvalidation(k,x_train,y_train):
 
 # PREDICTOR 1: LINEAR REGRESSION
 
-# calculate parameters using normal equations (in lr now)
 def lr_par(xt, yt):
     # given train sets xt and outcomes yt, determine beta parameters for predictor
-    # design matrix
-    c = len(xt)
-    X = np.append(np.ones((c,1)),xt,axis=1)
+    X = np.append(np.ones((len(xt),1)),xt,axis=1) # design matrix
     Xtrans = np.transpose(X)
     
     # use normal equation to determine beta parameters
-    beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans, X)),Xtrans),yt)
-    return beta
+    return np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans, X)),Xtrans),yt)
     
 def lr(beta,xt):
     # using the test set xt and the determined beta parameters, predict y
@@ -143,8 +139,7 @@ def lr(beta,xt):
     return np.matmul(X,beta)
 
 def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
-    y_test = lr(lr_par(xt,yt),x_test)
-    return y_test
+    return lr(lr_par(xt,yt),x_test)
 
 # PREDICTOR 2: RIDGE REGRESSION
 def ridge_par(xt,yt,l):
@@ -152,11 +147,11 @@ def ridge_par(xt,yt,l):
     # lambda corresponds to a small number, >0, that minimizes the sse
     X = np.append(np.ones((len(xt),1)),xt,axis=1) #design matrix
     Xtrans = np.transpose(X)
-    beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans,X)+l*np.identity(len(xt[0])+1)),Xtrans),yt)
-    return
-    
-def ridge(beta,xt):
-    
+    return np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans,X)+l*np.identity(len(xt[0])+1)),Xtrans),yt)
+     
+#using the beta parameters determined with ridge regression, the y are predicted using the lr function
+def ridgepredictor(xt,yt,l,x_test):
+    return lr(ridge_par(xt,yt,l),x_test)
 
 #SQUARED ERRORS
 def sse(y,yt):
@@ -166,7 +161,7 @@ def sse(y,yt):
     return np.array((y-yt)**2).sum()
 
 # CROSS VALIDATION
-def cross_val(xt,yt,k):
+def cross_val(xt,yt,k,func,l):
     # train the data set using k data sets obtained by dividing the training 
     # set into k sets each with a section excluded to use as a test set. This 
     # is used to evaluate the performance of the model usingthe available data set.
@@ -197,11 +192,16 @@ def cross_val(xt,yt,k):
             x_test[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] in range(i*fold,i*fold+fold)]
             y_test[i,:] = [item for item in yt if np.where(yt == item)[0][0] in range(i*fold,i*fold+fold)]
 
-    # using the predictor, generate the outcomes using the k different sets determined agove
-    y_pred = np.empty((k,fold))
-    for i in range(k):
-        y_pred[i,:] = lrpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
-        
+    if func == 'lr':
+        # using the predictor, generate the outcomes using the k different sets determined agove
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = lrpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    elif func == 'ridge':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = ridgepredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
+    
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
@@ -210,7 +210,7 @@ def cross_val(xt,yt,k):
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
     return errors       
     
-cross_val(x_train_1,y_train_1,5)   
+#cross_val(x_train_1,y_train_1,5)   
 
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
@@ -221,8 +221,15 @@ crossvalidation(20,x_train_1,y_train_1)
 crossvalidation(100,x_train_1,y_train_1)                    
 crossvalidation(15,x_train_1,y_train_1)     
           
+#%% Using cross-validation, determine the best lambda for ridge regression
+l = np.array([1e-6,1e-4,1e-2,1,10,100]) #array of lambda values to test
 
-                    
-                    
+def lamdb(xt,yt,l):
+    l_sse = np.empty(len(l))
+    for i in l:
+        l_sse[i] = np.mean(cross_val(x_train1,y_train1,5,'ridge',i))
+    return print('The lambda value that provides the lower SSE error is '+str(l[np.where(l_sse == l_sse.min())[0][0]])                    
+
+lamdb(x_train1,y_train1,l)              
                     
         
