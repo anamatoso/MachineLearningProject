@@ -139,10 +139,7 @@ def lr_par(xt, yt):
     
 def lr(beta,xt):
     # using the test set xt and the determined beta parameters, predict y
-    c = len(xt)
-    
-    # use beta parameters to determine y using x testing set    
-    X = np.append(np.ones((c,1)),xt,axis=1)
+    X = np.append(np.ones((len(xt),1)),xt,axis=1)
     return np.matmul(X,beta)
 
 def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
@@ -150,9 +147,17 @@ def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
     return y_test
 
 # PREDICTOR 2: RIDGE REGRESSION
-def ridge_par(xt,yt):
-
+def ridge_par(xt,yt,l):
+    # determine beta parameters for ridge regression using training sets xt and yt with lambda l
+    # lambda corresponds to a small number, >0, that minimizes the sse
+    X = np.append(np.ones((len(xt),1)),xt,axis=1) #design matrix
+    Xtrans = np.transpose(X)
+    beta = np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans,X)+l*np.identity(len(xt[0])+1)),Xtrans),yt)
+    return
     
+def ridge(beta,xt):
+    
+
 #SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
@@ -178,15 +183,9 @@ def cross_val(xt,yt,k):
         print("Cannot perform 1-fold classification since there is no test set.")
         return
     else:
-        k=5
-        xt=x_train1
-        yt=y_train1
-        c = len(xt)
         fold = c//k
         f=len(xt[0])
 
-        
-        
         # create training sets with missing test element    
         x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
         y_train = np.empty((k,c-fold)) 
