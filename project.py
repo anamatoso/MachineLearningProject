@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.preprocessing import linear_model
 
 
-
 #%% Load testing and training data
 cd = "/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/MachineLearningProject" #working directory
 x_test_1=np.load(cd+"/Xtest_Regression_Part1.npy")
@@ -163,8 +162,7 @@ def lassopredictor(xt,yt,l,xtest):
     return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
 
 
-
-#SQUARED ERRORS
+# SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
     # yt: training set
