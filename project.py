@@ -1,6 +1,7 @@
 #%% Import Libraries
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.preprocessing import linear_model
 
 
 
@@ -155,7 +156,6 @@ def ridgepredictor(xt,yt,l,x_test):
 
 
 # PREDICTOR 3: LASSO REGRESSION
-# from sklearn.preprocessing import linear_model
 def lassopredictor(xt,yt,l,xtest):
     #l=lambda
     lassoreg = linear_model.Lasso(alpha=l)    
