@@ -15,6 +15,15 @@ y_train_2=np.load(cd+"/Data/Ytrain_Regression_Part2.npy")
 
 del cd
 
+#%% Load variables for Inês until I can figure this out
+x_train1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtrain_Regression_Part1.npy')
+x_train2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtrain_Regression_Part2.npy')
+y_train1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Ytrain_Regression_Part1.npy')
+y_train2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Ytrain_Regression_Part2.npy')
+x_test1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtest_Regression_Part1.npy')
+x_test2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtest_Regression_Part2.npy')
+
+
 #%%Plot each feature vs outcome
 # for i in range(20):
 #     x=x_train_1[:,i]
@@ -143,14 +152,14 @@ def lr(beta,xt):
     return np.matmul(X,beta)
 
 def lrpredictor(xt,yt,x_test): # predicts y based on training with xt and yt
-    y_test=lr(lr_par(xt,yt),x_test)
+    y_test = lr(lr_par(xt,yt),x_test)
     return y_test
 
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
     # yt: training set
     # y: test/ predicted set
-    return np.array((yt-y)**2).sum()
+    return np.array((y-yt)**2).sum()
 
 # CROSS VALIDATION
 def cross_val(xt,yt,k):
@@ -170,26 +179,36 @@ def cross_val(xt,yt,k):
         print("Cannot perform 1-fold classification since there is no test set.")
         return
     else:
+        k=5
+        xt=x_train1
+        yt=y_train1
+        c = len(xt)
         fold = c//k
         f=len(xt[0])
+
+        
         
         # create training sets with missing test element    
         x_train = np.empty((k,c-fold,f)) #each element of list is a training set with 1 section excluded
         y_train = np.empty((k,c-fold)) 
+        x_test = np.empty((k,fold,f)) # testing set with excluded section
+        y_test = np.empty((k,fold)) 
         for i in range(k):
             x_train[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] not in range(i*fold,i*fold+fold)]
             y_train[i,:] = [item for item in yt if np.where(yt == item)[0][0] not in range(i*fold,i*fold+fold)]
+            x_test[i,:,:] = [item for item in xt if np.where(xt == item)[0][0] in range(i*fold,i*fold+fold)]
+            y_test[i,:] = [item for item in yt if np.where(yt == item)[0][0] in range(i*fold,i*fold+fold)]
 
     # using the predictor, generate the outcomes using the k different sets determined agove
-    y_test = np.empty((k,c-fold))
+    y_pred = np.empty((k,fold))
     for i in range(k):
-        y_test[i,:] = lrpredictor(xt,yt,x_train[i,:,:]) #outcomes predicted using linear regression model 
-
+        y_pred[i,:] = lrpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+        
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
-        errors[i] = sse(y_train[i,:],y_test[i,:])
-        
+        errors[i] = sse(y_test[i,:],y_pred[i,:])
+    
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
     return errors       
     
