@@ -3,15 +3,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 #%% Load testing and training data
 cd = "/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/MachineLearningProject" #working directory
-x_test_1=np.load(cd+"/Data/Xtest_Regression_Part1.npy")
-x_train_1=np.load(cd+"/Data/Xtrain_Regression_Part1.npy")
-y_train_1=np.load(cd+"/Data/Ytrain_Regression_Part1.npy")
+x_test_1=np.load(cd+"/Xtest_Regression_Part1.npy")
+x_train_1=np.load(cd+"/Xtrain_Regression_Part1.npy")
+y_train_1=np.load(cd+"/Ytrain_Regression_Part1.npy")
 
-x_test_2=np.load(cd+"/Data/Xtest_Regression_Part2.npy")
-x_train_2=np.load(cd+"/Data/Xtrain_Regression_Part2.npy")
-y_train_2=np.load(cd+"/Data/Ytrain_Regression_Part2.npy")
+x_test_2=np.load(cd+"/Xtest_Regression_Part2.npy")
+x_train_2=np.load(cd+"/Xtrain_Regression_Part2.npy")
+y_train_2=np.load(cd+"/Ytrain_Regression_Part2.npy")
 
 del cd
 
@@ -212,15 +213,15 @@ def cross_val(xt,yt,k):
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
     return errors       
     
-cross_val(x_train1,y_train1,5)   
+cross_val(x_train_1,y_train_1,5)   
 
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
 crossvalidation(2,x_train_1,y_train_1) 
-crossvalidation(5,x_train_1,y_train_1)               
+a=crossvalidation(5,x_train_1,y_train_1)               
 crossvalidation(10,x_train_1,y_train_1)               
 crossvalidation(20,x_train_1,y_train_1)
-a=crossvalidation(100,x_train_1,y_train_1)                    
+crossvalidation(100,x_train_1,y_train_1)                    
 crossvalidation(15,x_train_1,y_train_1)     
           
 
