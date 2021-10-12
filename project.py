@@ -6,6 +6,7 @@ from sklearn.preprocessing import linear_model
 
 #%% Load testing and training data
 cd = "/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/MachineLearningProject" #working directory
+cd = os.getcwd()
 x_test_1=np.load(cd+"/Xtest_Regression_Part1.npy")
 x_train_1=np.load(cd+"/Xtrain_Regression_Part1.npy")
 y_train_1=np.load(cd+"/Ytrain_Regression_Part1.npy")
@@ -17,12 +18,13 @@ y_train_2=np.load(cd+"/Ytrain_Regression_Part2.npy")
 del cd
 
 #%% Load variables for Inês until I can figure this out
-x_train1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtrain_Regression_Part1.npy')
-x_train2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtrain_Regression_Part2.npy')
-y_train1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Ytrain_Regression_Part1.npy')
-y_train2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Ytrain_Regression_Part2.npy')
-x_test1 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtest_Regression_Part1.npy')
-x_test2 = np.load('/Users/inessarana/Documents/Faculdade/5º ano /1º Semestre/ML/Project/Xtest_Regression_Part2.npy')
+cd = os.getcwd()
+x_train1 = np.load(cd+'/Xtrain_Regression_Part1.npy')
+x_train2 = np.load(cd+'/Xtrain_Regression_Part2.npy')
+y_train1 = np.load(cd+'/Ytest_Regression_Part1.npy')
+y_train2 = np.load(cd+'/Ytrain_Regression_Part2.npy')
+x_test1 = np.load(cd+'/Xtest_Regression_Part1.npy')
+x_test2 = np.load(cd+'/Xtest_Regression_Part2.npy')
 
 
 #%%Plot each feature vs outcome
