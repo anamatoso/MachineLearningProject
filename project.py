@@ -175,6 +175,7 @@ cv_lasso_k10=cross_val(x_train_1,y_train_1,10,'lasso',0.1)
 
 k5=[cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
 k10=[cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
+del cv_lr_k5,cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
 #%% Plot bar chart
 ind=np.arange(3)
 width=0.35
@@ -186,6 +187,7 @@ plt.grid(axis='y',linestyle='--', linewidth=0.5)
 plt.xticks(ind + width / 2, ('Linear Regressor', 'Ridge', 'Lasso'))
 plt.yticks(np.linspace(0, 0.24,13))
 plt.legend(loc='best')
+
 #%% Using cross-validation, determine the best lambda for ridge regression
 l = [1e-6,1e-4,1e-2,1,10,100] #array of lambda values to test
 
