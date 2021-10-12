@@ -17,22 +17,22 @@ x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 del cd
 
 #%%Plot each feature vs outcome
-# for i in range(20):
-#     x=x_train_1[:,i]
-#     plt.figure()
-#     plt.scatter(x,y_train_1)
-#     plt.title("feature " +str(i)+" vs y")
+for i in range(20):
+    x=x_train_1[:,i]
+    plt.figure()
+    plt.scatter(x,y_train_1)
+    plt.title("feature " +str(i)+" vs y")
 
 #%% Plot each feature vs feature-check dependencies
 
-# for i in range(20):
-#     for j in range(i):
-#         if i!=j:
-#             x1=x_train_1[:,i]
-#             x2=x_train_1[:,j]
-#             plt.figure()
-#             plt.scatter(x1,x2)
-#             plt.title("feature " +str(i)+" vs feature " +str(j))
+for i in range(20):
+    for j in range(i):
+        if i!=j:
+            x1=x_train_1[:,i]
+            x2=x_train_1[:,j]
+            plt.figure()
+            plt.scatter(x1,x2)
+            plt.title("feature " +str(i)+" vs feature " +str(j))
             
 # The features seem independent
          
