@@ -183,4 +183,7 @@ def best_lambda(xt,yt,l):
 
 best_lambda(x_train_1,y_train_1,l)
                     
-        
+#%% SAVE PREDICTION
+
+y_pred = lrpredictor(x_train_1,y_train_1,x_test_1)
+np.save('Data/YTest_Regression_Part1.npy',y_pred)
