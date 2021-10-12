@@ -1,12 +1,12 @@
 #%% Import Libraries
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 from sklearn.preprocessing import linear_model
 
 
 #%% Load testing and training data
 cd = "/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/MachineLearningProject" #working directory
-cd = os.getcwd()
 x_test_1=np.load(cd+"/Xtest_Regression_Part1.npy")
 x_train_1=np.load(cd+"/Xtrain_Regression_Part1.npy")
 y_train_1=np.load(cd+"/Ytrain_Regression_Part1.npy")
@@ -19,13 +19,14 @@ del cd
 
 #%% Load variables for Inês until I can figure this out
 cd = os.getcwd()
-x_train1 = np.load(cd+'/Xtrain_Regression_Part1.npy')
-x_train2 = np.load(cd+'/Xtrain_Regression_Part2.npy')
-y_train1 = np.load(cd+'/Ytest_Regression_Part1.npy')
-y_train2 = np.load(cd+'/Ytrain_Regression_Part2.npy')
-x_test1 = np.load(cd+'/Xtest_Regression_Part1.npy')
-x_test2 = np.load(cd+'/Xtest_Regression_Part2.npy')
+x_train1 = np.load(cd+'/Data/Xtrain_Regression_Part1.npy')
+x_train2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
+y_train1 = np.load(cd+'/Data/Ytrain_Regression_Part1.npy')
+y_train2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
+x_test1 = np.load(cd+'/Data/Xtest_Regression_Part1.npy')
+x_test2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
+del cd
 
 #%%Plot each feature vs outcome
 # for i in range(20):
@@ -228,7 +229,7 @@ def cross_val(xt,yt,k,func,l):
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
     return errors       
     
-cross_val(x_train_1,y_train_1,5,'lasso',1)   
+cross_val(x_train1,y_train1,5,'lr',1)   
 
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
