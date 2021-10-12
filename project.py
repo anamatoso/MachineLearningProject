@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from sklearn import linear_model
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn import svm
+
 
 #%% Load testing and training data
 cd = os.getcwd()
@@ -165,7 +164,13 @@ def cross_val(xt,yt,k,func,l):
 
 
 #%% Test function
-cross_val(x_train_1,y_train_1,5,'svm',3)    
+cv_lr_k5=cross_val(x_train_1,y_train_1,5,'lr',3)    
+cv_lr_k10=cross_val(x_train_1,y_train_1,10,'lr',3)    
+cv_ridge_k5=cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
+cv_ridge_k10=cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
+cv_lasso_k5=cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
+cv_lasso_k10=cross_val(x_train_1,y_train_1,10,'lasso',0.1)  
+
           
 #%% Using cross-validation, determine the best lambda for ridge regression
 l = [1e-6,1e-4,1e-2,1,10,100] #array of lambda values to test
