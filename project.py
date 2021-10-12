@@ -77,18 +77,6 @@ def lassopredictor(xt,yt,l,xtest):
     lassoreg.fit(xt,yt)
     return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
 
-# PREDICTOR 4: NEAREST NEIGHBORS
-def knnpredictor(xt,yt,l,xtest):
-    knn = KNeighborsRegressor(n_neighbors=l,weights='distance')
-    knn.fit(xt,yt)
-    return knn.predict(xtest)
-
-# PREDITOR 5: SUPPORT VECTOR MACHINES
-def svmpredictor(xt,yt,xtest):
-    sv = svm.SVR()
-    sv.fit(xt,yt)
-    return sv.predict(xtest)
-
 # SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
@@ -155,7 +143,7 @@ def cross_val(xt,yt,k,func,*args):
     return np.mean(errors)       
 
 
-#%% Test function
+#%% TEST FUNCTION
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr',3)    
 cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
@@ -168,7 +156,7 @@ k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
 
 del cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
 
-#%% Plot bar chart
+#%% PLOT BAR CHART
 ind=np.arange(3)
 width=0.35
 plt.bar(ind, k5, width, label='5-fold')
