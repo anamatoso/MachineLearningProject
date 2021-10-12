@@ -17,22 +17,22 @@ x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 del cd
 
 #%%Plot each feature vs outcome
-for i in range(20):
-    x=x_train_1[:,i]
-    plt.figure()
-    plt.scatter(x,y_train_1)
-    plt.title("feature " +str(i)+" vs y")
+# for i in range(20):
+#     x=x_train_1[:,i]
+#     plt.figure()
+#     plt.scatter(x,y_train_1)
+#     plt.title("feature " +str(i)+" vs y")
 
 #%% Plot each feature vs feature-check dependencies
 
-for i in range(20):
-    for j in range(i):
-        if i!=j:
-            x1=x_train_1[:,i]
-            x2=x_train_1[:,j]
-            plt.figure()
-            plt.scatter(x1,x2)
-            plt.title("feature " +str(i)+" vs feature " +str(j))
+# for i in range(20):
+#     for j in range(i):
+#         if i!=j:
+#             x1=x_train_1[:,i]
+#             x2=x_train_1[:,j]
+#             plt.figure()
+#             plt.scatter(x1,x2)
+#             plt.title("feature " +str(i)+" vs feature " +str(j))
             
 # The features seem independent
          
@@ -144,6 +144,7 @@ def cross_val(xt,yt,k,func,*args):
 
 
 #%% TEST FUNCTION
+
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr',3)    
 cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
@@ -157,8 +158,9 @@ k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
 del cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
 
 #%% PLOT BAR CHART
-ind=np.arange(3)
-width=0.35
+
+ind = np.arange(3)
+width = 0.35
 plt.bar(ind, k5, width, label='5-fold')
 plt.bar(ind + width, k10, width,label='10-fold')
 plt.ylabel('Mean squared error')
@@ -171,11 +173,7 @@ plt.legend(loc='best')
 #%% Using cross-validation, determine the best lambda for ridge regression
 l = [1e-6,1e-4,1e-2,1,10,100] #array of lambda values to test
 
-xt = x_train_1
-yt = y_train_1
-
 def best_lambda(xt,yt,l):
-    
     l_sse = np.empty(len(l))
     for i in range(len(l)):
         l_sse[i] = cross_val(xt,yt,5,'lasso',l[i])
