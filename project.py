@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from sklearn import linear_model
-import os
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import svm
 
 #%% Load testing and training data
 cd = os.getcwd()
@@ -77,6 +78,17 @@ def lassopredictor(xt,yt,l,xtest):
     lassoreg.fit(xt,yt)
     return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
 
+# PREDICTOR 4: NEAREST NEIGHBORS
+def knnpredictor(xt,yt,l,xtest):
+    knn = KNeighborsRegressor(n_neighbors=l,weights='distance')
+    knn.fit(xt,yt)
+    return knn.predict(xtest)
+
+# PREDITOR 5: SUPPORT VECTOR MACHINES
+def svmpredictor(xt,yt,xtest):
+    sv = svm.SVR()
+    sv.fit(xt,yt)
+    return sv.predict(xtest)
 
 # SQUARED ERRORS
 def sse(y,yt):
@@ -133,6 +145,15 @@ def cross_val(xt,yt,k,func,l):
         for i in range(k):
             y_pred[i,:] = lassopredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
     
+    elif func == 'knn':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = knnpredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'svm':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = svmpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
     
     # compute errors for each set
     errors = np.empty(k)
@@ -141,26 +162,24 @@ def cross_val(xt,yt,k,func,l):
     
     print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)       
-    
-cross_val(x_train_1,y_train_1,10,'lasso',0.01)   
+
 
 #%% Test function
-crossvalidation(1,x_train_1,y_train_1)               
-crossvalidation(2,x_train_1,y_train_1) 
-crossvalidation(10,x_train_1,y_train_1)               
-crossvalidation(20,x_train_1,y_train_1)
-crossvalidation(100,x_train_1,y_train_1)                    
-crossvalidation(15,x_train_1,y_train_1)     
+cross_val(x_train_1,y_train_1,5,'svm',3)    
           
 #%% Using cross-validation, determine the best lambda for ridge regression
-l = np.array([1e-6,1e-4,1e-2,1,10,100]) #array of lambda values to test
+l = [1e-6,1e-4,1e-2,1,10,100] #array of lambda values to test
+
+xt = x_train_1
+yt = y_train_1
 
 def best_lambda(xt,yt,l):
+    
     l_sse = np.empty(len(l))
     for i in range(len(l)):
-        l_sse[i] = np.mean(cross_val(x_train1,y_train1,5,'ridge',l[i]))
+        l_sse[i] = cross_val(xt,yt,5,'lasso',l[i])
     return l[np.where(l_sse == l_sse.min())[0][0]]
 
-best_lambda(x_train1,y_train1,l)
+best_lambda(x_train_1,y_train_1,l)
                     
         
