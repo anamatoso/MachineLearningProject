@@ -1,9 +1,8 @@
 #%% Import Libraries
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 from sklearn.preprocessing import linear_model
-
+import os
 
 #%% Load testing and training data
 cd = "/Users/ana/Documents/Ana/universidade/5 ano 1 semestre/Aprendizagem Automática/MachineLearningProject" #working directory
@@ -121,7 +120,9 @@ def crossvalidation(k,x_train,y_train):
             sse_vector=sse_vector+[sse]
             
     print("The mean SSE for "+str(k)+" folds is "+str(np.mean(sse_vector)))
-    return sse_vector                                                
+    return np.mean(sse_vector)                                                
+
+a=crossvalidation(5,x_train_1,y_train_1)               
 
 #%% ANA VÊ ESTA SECÇÃO
     # continuei o que estava a fazer a pouco e vou por aqui as funções que sairam de lá para compararmos e escolhermos uma            
@@ -224,17 +225,20 @@ def cross_val(xt,yt,k,func,l):
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
-        errors[i] = sse(y_test[i,:],y_pred[i,:])
+        errors[i] = sse(y_test[i,:],y_pred[i,:])/fold
     
     print("The mean SSE for "+str(k)+"-folds is "+str(np.mean(errors)))
-    return errors       
+    return np.mean(errors)       
     
+<<<<<<< HEAD
 cross_val(x_train1,y_train1,5,'lr',1)   
+=======
+cross_val(x_train_1,y_train_1,5,'lr',1)   
+>>>>>>> 5123fc3391cb52353124f216183da9babdb2ef41
 
 #%% Test function
 crossvalidation(1,x_train_1,y_train_1)               
 crossvalidation(2,x_train_1,y_train_1) 
-a=crossvalidation(5,x_train_1,y_train_1)               
 crossvalidation(10,x_train_1,y_train_1)               
 crossvalidation(20,x_train_1,y_train_1)
 crossvalidation(100,x_train_1,y_train_1)                    
