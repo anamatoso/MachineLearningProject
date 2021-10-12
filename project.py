@@ -145,17 +145,7 @@ def cross_val(xt,yt,k,func,*args):
         l = args
         for i in range(k):
             y_pred[i,:] = lassopredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
-    
-    elif func == 'knn':
-        y_pred = np.empty((k,fold))
-        for i in range(k):
-            y_pred[i,:] = knnpredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
-    
-    elif func == 'svm':
-        y_pred = np.empty((k,fold))
-        for i in range(k):
-            y_pred[i,:] = svmpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
-    
+
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
@@ -175,7 +165,8 @@ cv_lasso_k10=cross_val(x_train_1,y_train_1,10,'lasso',0.1)
 
 k5=[cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
 k10=[cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
-del cv_lr_k5,cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
+del cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
+
 #%% Plot bar chart
 ind=np.arange(3)
 width=0.35
