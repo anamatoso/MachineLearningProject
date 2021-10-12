@@ -156,15 +156,16 @@ def cross_val(xt,yt,k,func,*args):
 
 
 #%% Test function
-cv_lr_k5=cross_val(x_train_1,y_train_1,5,'lr')    
-cv_lr_k10=cross_val(x_train_1,y_train_1,10,'lr',3)    
-cv_ridge_k5=cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
-cv_ridge_k10=cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
-cv_lasso_k5=cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
-cv_lasso_k10=cross_val(x_train_1,y_train_1,10,'lasso',0.1)  
+cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
+cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr',3)    
+cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
+cv_ridge_k10 = cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
+cv_lasso_k5 = cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
+cv_lasso_k10 = cross_val(x_train_1,y_train_1,10,'lasso',0.1)  
 
-k5=[cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
-k10=[cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
+k5 = [cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
+k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
+
 del cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
 
 #%% Plot bar chart
