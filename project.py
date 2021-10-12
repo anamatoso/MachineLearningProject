@@ -97,7 +97,7 @@ def sse(y,yt):
     return np.array((y-yt)**2).sum()
 
 # CROSS VALIDATION
-def cross_val(xt,yt,k,func,l):
+def cross_val(xt,yt,k,func,*args):
     # train the data set using k data sets obtained by dividing the training 
     # set into k sets each with a section excluded to use as a test set. This 
     # is used to evaluate the performance of the model usingthe available data set.
@@ -136,11 +136,13 @@ def cross_val(xt,yt,k,func,l):
     
     elif func == 'ridge':
         y_pred = np.empty((k,fold))
+        l = args
         for i in range(k):
             y_pred[i,:] = ridgepredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
     
     elif func == 'lasso':
         y_pred = np.empty((k,fold))
+        l = args
         for i in range(k):
             y_pred[i,:] = lassopredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
     
@@ -164,7 +166,7 @@ def cross_val(xt,yt,k,func,l):
 
 
 #%% Test function
-cv_lr_k5=cross_val(x_train_1,y_train_1,5,'lr',3)    
+cv_lr_k5=cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10=cross_val(x_train_1,y_train_1,10,'lr',3)    
 cv_ridge_k5=cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
 cv_ridge_k10=cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
