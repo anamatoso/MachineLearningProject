@@ -182,7 +182,7 @@ def best_lambda(xt,yt,l):
         l_sse[i] = cross_val(xt,yt,5,'lasso',l[i])
     return l[np.where(l_sse == l_sse.min())[0][0]]
 
-best_lambda(x_train_1,y_train_1,l)
+l = best_lambda(x_train_1,y_train_1,l)
                     
 #%% SAVE PREDICTION
 
