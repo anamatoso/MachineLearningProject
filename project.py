@@ -210,7 +210,7 @@ for i in range(21):
     plt.xlabel('Lambda')
     plt.ylabel('Beta values')
     
-plt.savefig('lambdaridge', format="eps")
+plt.savefig('lambdaridge.eps', format="eps")
 plt.figure()
 for i in range(21):
     plt.xscale('log')
@@ -220,4 +220,4 @@ for i in range(21):
     plt.ylabel('Beta values')
 
 
-plt.savefig('lambdalasso', format="eps")
+plt.savefig('lambdalasso.eps', format="eps")
