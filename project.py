@@ -206,18 +206,18 @@ for i in range(len(lambdas)):
 for i in range(21):
     plt.xscale('log')
     plt.plot(lambdas,beta_ridge[i,:],label='beta_ridge')
-    plt.title('Evolution of beta values in Ridge Regression')
-    plt.xlabel('Lambda')
-    plt.ylabel('Beta values')
+    plt.title('Evolution of \u03B2 values in Ridge Regression')
+    plt.xlabel('\u03BB')
+    plt.ylabel('\u03B2 values')
     
 plt.savefig('lambdaridge.eps', format="eps")
 plt.figure()
 for i in range(21):
     plt.xscale('log')
     plt.plot(lambdas,beta_lasso[i,:],label='beta_lasso')
-    plt.title('Evolution of beta values in Lasso Regression')
-    plt.xlabel('Lambda')
-    plt.ylabel('Beta values')
+    plt.title('Evolution of \u03B2 values in Lasso Regression')
+    plt.xlabel('\u03BB')
+    plt.ylabel('\u03B2 values')
 
 
 plt.savefig('lambdalasso.eps', format="eps")
