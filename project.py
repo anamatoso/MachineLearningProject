@@ -191,7 +191,19 @@ np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
 #%% Compare betas
 
-beta_lr = lr_par(x_train_1, y_train_1)
-beta_ridge = ridge_par(x_train_1,y_train_1,1)
-lassoreg = linear_model.Lasso(alpha=1);lassoreg.fit(x_train_1,y_train_1)
-beta_lasso = np.hstack((lassoreg.intercept_, lassoreg.coef_))
+lambdas = [1e-6,1e-4,1e-2,1,10,50,100]
+beta_lr=np.empty(21,len(lambdas))
+beta_ridge=np.empty(21,len(lambdas))
+beta_lasso=np.empty(21,len(lambdas))
+
+for i in range(len(lambdas)):
+    
+    beta_lr[:,i] = np.reshape(lr_par(x_train_1, y_train_1),21)
+    beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdas[:,i]),21)
+    lassoreg = linear_model.Lasso(alpha=lambdas[:,i]);lassoreg.fit(x_train_1,y_train_1)
+    beta_lasso[:,i] = np.hstack((lassoreg.intercept_, lassoreg.coef_))
+
+plt.plot(lambdas,beta_lr,label='beta_lr')
+plt.plot(lambdas,beta_ridge,label='beta_ridge')
+plt.plot(lambdas,beta_lasso,label='beta_lasso')
+plt.legend(loc='best')
