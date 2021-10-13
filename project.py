@@ -191,7 +191,7 @@ np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
 #%% Compare betas
 
-lambdas = [1e-3,1e-1,1e-1,1,10,100,1000]
+lambdas = [1e-3,1e-2,1e-1,1,10,100,1000]
 beta_lr=np.empty((21,len(lambdas)))
 beta_ridge=np.empty((21,len(lambdas)))
 beta_lasso=np.empty((21,len(lambdas)))
