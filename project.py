@@ -5,13 +5,17 @@ import os
 from sklearn import linear_model
 
 
-#%% Load testing and training data
+#%% LOAD TEST AND TRAINING DATA
 cd = os.getcwd()
+
+# Part 1
 x_train_1 = np.load(cd+'/Data/Xtrain_Regression_Part1.npy')
-x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
 y_train_1 = np.load(cd+'/Data/Ytrain_Regression_Part1.npy')
-y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
 x_test_1 = np.load(cd+'/Data/Xtest_Regression_Part1.npy')
+
+# Part 2
+x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
+y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
 x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
 del cd
@@ -40,7 +44,6 @@ del cd
 #%% PREDICTORS EVALUATION
 
 # PREDICTOR 1: LINEAR REGRESSION
-
 def lr_par(xt, yt):
     # given train sets xt and outcomes yt, determine beta parameters for predictor
     X = np.append(np.ones((len(xt),1)),xt,axis=1) # design matrix
@@ -146,7 +149,7 @@ def cross_val(xt,yt,k,func,*args):
 #%% TEST FUNCTION
 
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
-cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr',3)    
+cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr')    
 cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
 cv_ridge_k10 = cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
 cv_lasso_k5 = cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
