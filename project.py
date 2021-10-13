@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from sklearn import linear_model
-
+import warnings
+warnings.filterwarnings('ignore')
 
 #%% LOAD TEST AND TRAINING DATA
 cd = os.getcwd()
@@ -158,7 +159,7 @@ cv_lasso_k10 = cross_val(x_train_1,y_train_1,10,'lasso',0.1)
 k5 = [cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
 k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
 
-del cv_lr_k5,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
+del cv_lr_k5,cv_lr_k10,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
 
 #%% PLOT BAR CHART
 
@@ -173,17 +174,8 @@ plt.xticks(ind + width / 2, ('Linear Regressor', 'Ridge', 'Lasso'))
 plt.yticks(np.linspace(0, 0.24,13))
 plt.legend(loc='best')
 
-#%% Using cross-validation, determine the best lambda for ridge regression
-l = [1e-6,1e-4,1e-2,1,10,100] #array of lambda values to test
+del width, ind, k5, k10
 
-def best_lambda(xt,yt,l):
-    l_sse = np.empty(len(l))
-    for i in range(len(l)):
-        l_sse[i] = cross_val(xt,yt,5,'lasso',l[i])
-    return l[np.where(l_sse == l_sse.min())[0][0]]
-
-l = best_lambda(x_train_1,y_train_1,l)
-                    
 #%% SAVE PREDICTION
 
 y_pred = lrpredictor(x_train_1,y_train_1,x_test_1)
@@ -221,3 +213,5 @@ for i in range(21):
 
 
 plt.savefig('lambdalasso.eps', format="eps")
+
+del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
