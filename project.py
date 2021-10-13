@@ -185,3 +185,10 @@ best_lambda(x_train_1,y_train_1,l)
 
 y_pred = lrpredictor(x_train_1,y_train_1,x_test_1)
 np.save('Data/YTest_Regression_Part1.npy',y_pred)
+
+#%% Compare betas
+
+beta_lr = lr_par(x_train_1, y_train_1)
+beta_ridge = ridge_par(x_train_1,y_train_1,1)
+lassoreg = linear_model.Lasso(alpha=1);lassoreg.fit(x_train_1,y_train_1)
+beta_lasso = np.hstack((lassoreg.intercept_, lassoreg.coef_))
