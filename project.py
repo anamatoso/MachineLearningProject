@@ -191,19 +191,33 @@ np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
 #%% Compare betas
 
-lambdas = [1e-6,1e-4,1e-2,1,10,50,100]
-beta_lr=np.empty(21,len(lambdas))
-beta_ridge=np.empty(21,len(lambdas))
-beta_lasso=np.empty(21,len(lambdas))
+lambdas = [1e-3,1e-1,1e-1,1,10,100,1000]
+beta_lr=np.empty((21,len(lambdas)))
+beta_ridge=np.empty((21,len(lambdas)))
+beta_lasso=np.empty((21,len(lambdas)))
 
 for i in range(len(lambdas)):
     
-    beta_lr[:,i] = np.reshape(lr_par(x_train_1, y_train_1),21)
-    beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdas[:,i]),21)
-    lassoreg = linear_model.Lasso(alpha=lambdas[:,i]);lassoreg.fit(x_train_1,y_train_1)
+    beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdas[i]),21)
+    lassoreg = linear_model.Lasso(alpha=lambdas[i]);lassoreg.fit(x_train_1,y_train_1)
     beta_lasso[:,i] = np.hstack((lassoreg.intercept_, lassoreg.coef_))
 
-plt.plot(lambdas,beta_lr,label='beta_lr')
-plt.plot(lambdas,beta_ridge,label='beta_ridge')
-plt.plot(lambdas,beta_lasso,label='beta_lasso')
-plt.legend(loc='best')
+
+for i in range(21):
+    plt.xscale('log')
+    plt.plot(lambdas,beta_ridge[i,:],label='beta_ridge')
+    plt.title('Evolution of beta values in Ridge Regression')
+    plt.xlabel('Lambda')
+    plt.ylabel('Beta values')
+    
+plt.savefig('lambdaridge', format="eps")
+plt.figure()
+for i in range(21):
+    plt.xscale('log')
+    plt.plot(lambdas,beta_lasso[i,:],label='beta_lasso')
+    plt.title('Evolution of beta values in Lasso Regression')
+    plt.xlabel('Lambda')
+    plt.ylabel('Beta values')
+
+
+plt.savefig('lambdalasso', format="eps")
