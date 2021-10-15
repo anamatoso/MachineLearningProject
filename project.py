@@ -3,7 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from sklearn import linear_model
+from sklearn import svm
+from sklearn.linear_model import SGDRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import DotProduct, WhiteKernel
+
 import warnings
+
 warnings.filterwarnings('ignore')
 
 #%% LOAD TEST AND TRAINING DATA
@@ -81,6 +87,25 @@ def lassopredictor(xt,yt,l,xtest):
     lassoreg.fit(xt,yt)
     return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
 
+# PREDICTOR 4: SUPPORT VECTOR MACHINES
+def svmlinearpredictor(xt,yt,xtest):
+    regsvm = svm.LinearSVR(epsilon=0.05)
+    regsvm.fit(xt, yt)
+    return regsvm.predict(xtest)
+
+# PREDICTOR 5: SGD
+def sgdpredictor(xt,yt,xtest):
+    sgd = SGDRegressor(random_state=0,loss='epsilon_insensitive',epsilon=0.05)
+    sgd.fit(xt, yt)
+    return sgd.predict(xtest)
+
+# PREDICTOR 5: Gaussian Processes
+def gausspredictor(xt,yt,xtest):
+    kernel = DotProduct()
+    gauss = GaussianProcessRegressor(kernel=kernel,random_state=0)
+    gauss.fit(xt, yt)
+    return gauss.predict(xtest)
+
 # SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
@@ -138,6 +163,22 @@ def cross_val(xt,yt,k,func,*args):
         for i in range(k):
             y_pred[i,:] = lassopredictor(x_train[i,:,:],y_train[i,:],l,x_test[i,:,:]) #outcomes predicted using linear regression model
 
+    elif func == 'svmlinear':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = svmlinearpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+
+    elif func == 'sgd':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = sgdpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    elif func == 'gauss':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = gausspredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+
+
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
@@ -155,23 +196,29 @@ cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)
 cv_ridge_k10 = cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
 cv_lasso_k5 = cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
 cv_lasso_k10 = cross_val(x_train_1,y_train_1,10,'lasso',0.1)  
+cv_sgd_k5 = cross_val(x_train_1,y_train_1,5,'sgd')    
+cv_sgd_k10 = cross_val(x_train_1,y_train_1,10,'sgd')  
+cv_svmlin_k5 = cross_val(x_train_1,y_train_1,5,'svmlinear')    
+cv_svmlin_k10 = cross_val(x_train_1,y_train_1,10,'svmlinear')  
+cv_gauss_k5 = cross_val(x_train_1,y_train_1,5,'gauss')    
+cv_gauss_k10 = cross_val(x_train_1,y_train_1,10,'gauss')  
 
-k5 = [cv_lr_k5,cv_ridge_k5,cv_lasso_k5]
-k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10]
+k5 = [cv_lr_k5,cv_ridge_k5,cv_lasso_k5,cv_svmlin_k5,cv_sgd_k5,cv_gauss_k5]
+k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10,cv_svmlin_k10,cv_sgd_k10,cv_gauss_k10]
 
-del cv_lr_k5,cv_lr_k10,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10
+del cv_lr_k5,cv_lr_k10,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10,cv_svmlin_k10,cv_svmlin_k5,cv_sgd_k5,cv_sgd_k10,cv_gauss_k10,cv_gauss_k5
 
 #%% PLOT BAR CHART
 
-ind = np.arange(3)
+ind = np.arange(len(k5))
 width = 0.35
 plt.bar(ind, k5, width, label='5-fold')
 plt.bar(ind + width, k10, width,label='10-fold')
 plt.ylabel('Mean squared error')
 plt.title('MSE')
 plt.grid(axis='y',linestyle='--', linewidth=0.5)
-plt.xticks(ind + width / 2, ('Linear Regressor', 'Ridge', 'Lasso'))
-plt.yticks(np.linspace(0, 0.24,13))
+plt.xticks(ind + width / 2, ('Linear Regressor', 'Ridge', 'Lasso','SVMLinear','SGD','Gauss'))
+#plt.yticks(np.linspace(0, 0.24,13))
 plt.legend(loc='best')
 
 del width, ind, k5, k10
@@ -187,7 +234,7 @@ lambdas = [1e-3,1e-2,1e-1,1,10,100,1000]
 beta_lr=np.empty((21,len(lambdas)))
 beta_ridge=np.empty((21,len(lambdas)))
 beta_lasso=np.empty((21,len(lambdas)))
-
+plt.figure()
 for i in range(len(lambdas)):
     
     beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdas[i]),21)
