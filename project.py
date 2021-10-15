@@ -184,11 +184,12 @@ def cross_val(xt,yt,k,func,*args):
     for i in range(k):
         errors[i] = sse(y_test[i,:],y_pred[i,:])/fold
     
-    print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
+    #print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)       
 
 
 #%% TEST FUNCTION
+
 
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr')    
@@ -207,6 +208,31 @@ k5 = [cv_lr_k5,cv_ridge_k5,cv_lasso_k5,cv_svmlin_k5,cv_sgd_k5,cv_gauss_k5]
 k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10,cv_svmlin_k10,cv_sgd_k10,cv_gauss_k10]
 
 del cv_lr_k5,cv_lr_k10,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10,cv_svmlin_k10,cv_svmlin_k5,cv_sgd_k5,cv_sgd_k10,cv_gauss_k10,cv_gauss_k5
+
+#%% Compare cross validation errors between lambdas
+
+l=np.logspace(-6, -3, 10000)
+cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')   
+cv_ridge_k5=[]
+cv_lasso_k5=[]
+for i in range(len(l)):
+    cv_ridge_k5 = cv_ridge_k5 + [cross_val(x_train_1,y_train_1,5,'ridge',l[i])]  
+    cv_lasso_k5 = cv_lasso_k5 + [cross_val(x_train_1,y_train_1,5,'lasso',l[i])]
+    # print('\n')
+np.save('Data/cv_ridge_k5_10000.npy',cv_ridge_k5)
+np.save('Data/cv_lasso_k5_10000.npy',cv_lasso_k5)
+#%% 
+cv_ridge_k5=np.load('Data/cv_ridge_k5_10000.npy')
+cv_lasso_k5=np.load('Data/cv_lasso_k5_10000.npy')
+plt.xscale('log')
+plt.plot(l,cv_ridge_k5,label='Ridge')
+plt.plot(l,cv_lasso_k5,label='Lasso')
+plt.title('Evolution of \u03B2 values in Ridge Regression')
+plt.xlabel('lambda')
+plt.ylabel('Error values')
+plt.legend(loc='best')
+plt.savefig('comparelambdaserror.eps', format="eps")
+
 
 #%% PLOT BAR CHART
 
@@ -230,25 +256,28 @@ np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
 #%% Compare betas
 
-lambdas = [1e-3,1e-2,1e-1,1,10,100,1000]
+lambdas=np.logspace(-6, 3, 10000)
+lambdasridge=np.logspace(-6, 6, 10000)
+
 beta_lr=np.empty((21,len(lambdas)))
 beta_ridge=np.empty((21,len(lambdas)))
 beta_lasso=np.empty((21,len(lambdas)))
 plt.figure()
 for i in range(len(lambdas)):
     
-    beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdas[i]),21)
+    beta_ridge[:,i] = np.reshape(ridge_par(x_train_1,y_train_1,lambdasridge[i]),21)
     lassoreg = linear_model.Lasso(alpha=lambdas[i]);lassoreg.fit(x_train_1,y_train_1)
     beta_lasso[:,i] = np.hstack((lassoreg.intercept_, lassoreg.coef_))
 
 
 for i in range(21):
     plt.xscale('log')
-    plt.plot(lambdas,beta_ridge[i,:],label='beta_ridge')
+    plt.plot(lambdasridge,beta_ridge[i,:],label='beta_ridge')
     plt.title('Evolution of \u03B2 values in Ridge Regression')
     plt.xlabel('\u03BB')
     plt.ylabel('\u03B2 values')
-    
+plt.grid(linestyle='--', linewidth=0.5)
+
 plt.savefig('lambdaridge.eps', format="eps")
 plt.figure()
 for i in range(21):
@@ -257,6 +286,7 @@ for i in range(21):
     plt.title('Evolution of \u03B2 values in Lasso Regression')
     plt.xlabel('\u03BB')
     plt.ylabel('\u03B2 values')
+plt.grid(linestyle='--', linewidth=0.5)
 
 
 plt.savefig('lambdalasso.eps', format="eps")
