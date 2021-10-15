@@ -184,7 +184,7 @@ def cross_val(xt,yt,k,func,*args):
     for i in range(k):
         errors[i] = sse(y_test[i,:],y_pred[i,:])/fold
     
-    #print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
+    print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)       
 
 
@@ -250,8 +250,8 @@ plt.legend(loc='best')
 del width, ind, k5, k10
 
 #%% SAVE PREDICTION
-
-y_pred = lrpredictor(x_train_1,y_train_1,x_test_1)
+bestlambdalasso=l[np.where(cv_lasso_k5==np.min(cv_lasso_k5))[0][0]]
+y_pred = lassopredictor(x_train_1,y_train_1,bestlambdalasso,x_test_1)
 np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
 #%% Compare betas
