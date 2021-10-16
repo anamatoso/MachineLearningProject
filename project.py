@@ -21,9 +21,9 @@ y_train_1 = np.load(cd+'/Data/Ytrain_Regression_Part1.npy')
 x_test_1 = np.load(cd+'/Data/Xtest_Regression_Part1.npy')
 
 # Part 2
-x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
-y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
-x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
+# x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
+# y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
+# x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
 del cd
 
@@ -268,7 +268,6 @@ del width, ind, k5, k10
 #%% SAVE PREDICTION
 y_pred = lassopredictor(x_train_1,y_train_1,l_lasso,x_test_1)
 np.save('Data/YTest_Regression_Part1.npy',y_pred)
-
 
 #%% COMPARE BETAS
 # for the different lambda values, study the corresponding beta parameters
