@@ -99,7 +99,7 @@ def sgdpredictor(xt,yt,xtest):
     sgd.fit(xt, yt)
     return sgd.predict(xtest)
 
-# PREDICTOR 5: Gaussian Processes
+# PREDICTOR 6: GAUSSIAN PROCESSES
 def gausspredictor(xt,yt,xtest):
     kernel = DotProduct()
     gauss = GaussianProcessRegressor(kernel=kernel,random_state=0)
@@ -188,15 +188,53 @@ def cross_val(xt,yt,k,func,*args):
     return np.mean(errors)       
 
 
-#%% TEST FUNCTION
+#%% CHOOSE LAMBDA (DON'T RUN)
+# Compare cross validation errors between different lambda values
 
+l=np.logspace(-6, -3, 10000)
+cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')   
+cv_ridge_k5=[]
+cv_lasso_k5=[]
+for i in range(len(l)):
+    cv_ridge_k5 = cv_ridge_k5 + [cross_val(x_train_1,y_train_1,5,'ridge',l[i])]  
+    cv_lasso_k5 = cv_lasso_k5 + [cross_val(x_train_1,y_train_1,5,'lasso',l[i])]
+    # print('\n')
+np.save('Data/cv_ridge_k5_10000.npy',cv_ridge_k5)
+np.save('Data/cv_lasso_k5_10000.npy',cv_lasso_k5)
+
+#%%
+
+l=np.logspace(-6, -3, 10000)
+cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')   
+cv_ridge_k5=np.load('Data/cv_ridge_k5_10000.npy')
+cv_lasso_k5=np.load('Data/cv_lasso_k5_10000.npy')
+l_lasso=l[np.where(cv_lasso_k5==np.min(cv_lasso_k5))[0][0]]
+l_ridge=l[np.where(cv_ridge_k5==np.min(cv_ridge_k5))[0][0]]
+
+plt.xscale('log')
+plt.scatter(l_lasso,np.min(cv_lasso_k5),marker='x',color='k',zorder=3)
+plt.scatter(l_ridge,np.min(cv_ridge_k5),marker='x',color='k',zorder=3)
+plt.plot(l,cv_ridge_k5,label='Ridge')
+plt.plot(l,cv_lasso_k5,label='Lasso')
+plt.axhline(y=cv_lr_k5, color='darkgray', linestyle='--') #5-fold cross val using linear regression
+plt.title('Evolution of \u03B2 values in Ridge and Lasso Regression')
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+plt.xlim((1e-6, 1e-3))
+plt.legend(loc='best')
+plt.savefig('comparelambdaserror.eps', format="eps")
+
+del l
+
+#%% TEST FUNCTION
+# Compute erros with chosen lambda values
 
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr')    
-cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',0.1)  
-cv_ridge_k10 = cross_val(x_train_1,y_train_1,10,'ridge',0.1)    
-cv_lasso_k5 = cross_val(x_train_1,y_train_1,5,'lasso',0.1)  
-cv_lasso_k10 = cross_val(x_train_1,y_train_1,10,'lasso',0.1)  
+cv_ridge_k5 = cross_val(x_train_1,y_train_1,5,'ridge',l_ridge)  
+cv_ridge_k10 = cross_val(x_train_1,y_train_1,10,'ridge',l_ridge)    
+cv_lasso_k5 = cross_val(x_train_1,y_train_1,5,'lasso',l_lasso)  
+cv_lasso_k10 = cross_val(x_train_1,y_train_1,10,'lasso',l_lasso)  
 cv_sgd_k5 = cross_val(x_train_1,y_train_1,5,'sgd')    
 cv_sgd_k10 = cross_val(x_train_1,y_train_1,10,'sgd')  
 cv_svmlin_k5 = cross_val(x_train_1,y_train_1,5,'svmlinear')    
@@ -209,32 +247,8 @@ k10 = [cv_lr_k10,cv_ridge_k10,cv_lasso_k10,cv_svmlin_k10,cv_sgd_k10,cv_gauss_k10
 
 del cv_lr_k5,cv_lr_k10,cv_ridge_k5,cv_ridge_k10,cv_lasso_k5,cv_lasso_k10,cv_svmlin_k10,cv_svmlin_k5,cv_sgd_k5,cv_sgd_k10,cv_gauss_k10,cv_gauss_k5
 
-#%% Compare cross validation errors between lambdas
-
-l=np.logspace(-6, -3, 10000)
-cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')   
-cv_ridge_k5=[]
-cv_lasso_k5=[]
-for i in range(len(l)):
-    cv_ridge_k5 = cv_ridge_k5 + [cross_val(x_train_1,y_train_1,5,'ridge',l[i])]  
-    cv_lasso_k5 = cv_lasso_k5 + [cross_val(x_train_1,y_train_1,5,'lasso',l[i])]
-    # print('\n')
-np.save('Data/cv_ridge_k5_10000.npy',cv_ridge_k5)
-np.save('Data/cv_lasso_k5_10000.npy',cv_lasso_k5)
-#%% 
-cv_ridge_k5=np.load('Data/cv_ridge_k5_10000.npy')
-cv_lasso_k5=np.load('Data/cv_lasso_k5_10000.npy')
-plt.xscale('log')
-plt.plot(l,cv_ridge_k5,label='Ridge')
-plt.plot(l,cv_lasso_k5,label='Lasso')
-plt.title('Evolution of \u03B2 values in Ridge Regression')
-plt.xlabel('lambda')
-plt.ylabel('Error values')
-plt.legend(loc='best')
-plt.savefig('comparelambdaserror.eps', format="eps")
-
-
-#%% PLOT BAR CHART
+#%% PLOT BAR CHART 
+# Compara erros between the different predictors
 
 ind = np.arange(len(k5))
 width = 0.35
@@ -243,18 +257,20 @@ plt.bar(ind + width, k10, width,label='10-fold')
 plt.ylabel('Mean squared error')
 plt.title('MSE')
 plt.grid(axis='y',linestyle='--', linewidth=0.5)
-plt.xticks(ind + width / 2, ('Linear Regressor', 'Ridge', 'Lasso','SVMLinear','SGD','Gauss'))
-#plt.yticks(np.linspace(0, 0.24,13))
+plt.xticks(ind + width / 2, ('LR', 'Ridge', 'Lasso','SVMLinear','SGD','Gauss'))
+# plt.yticks(np.linspace(0.015, 0.025,11))
 plt.legend(loc='best')
+plt.savefig('comparepredictorserror.eps', format="eps")
 
 del width, ind, k5, k10
 
 #%% SAVE PREDICTION
-bestlambdalasso=l[np.where(cv_lasso_k5==np.min(cv_lasso_k5))[0][0]]
-y_pred = lassopredictor(x_train_1,y_train_1,bestlambdalasso,x_test_1)
+y_pred = lassopredictor(x_train_1,y_train_1,l_lasso,x_test_1)
 np.save('Data/YTest_Regression_Part1.npy',y_pred)
 
-#%% Compare betas
+
+#%% COMPARE BETAS
+# for the different lambda values, study the corresponding beta parameters
 
 lambdas=np.logspace(-6, 3, 10000)
 lambdasridge=np.logspace(-6, 6, 10000)
