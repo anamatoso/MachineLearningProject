@@ -309,6 +309,10 @@ del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
 #%% PART 2
 #%%
 from sklearn.ensemble import IsolationForest
+from sklearn.covariance import EllipticEnvelope
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
+
 cd=os.getcwd()
 # Part 2
 x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
@@ -319,22 +323,82 @@ x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 # A=[1,2,3,4,2,4,5,3,2,4,5,2,3,5,3,5,1,3]
 
 # plt.hist(A, range=(1,6))
-dist=[]
+distOG=[]
 for i in range(len(x_train_2)-1):
-    dist=dist+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
+    distOG=distOG+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
     
+
+#with isolation forest
 plt.figure()
-plt.hist(dist,density=True,label="with outliers")
+plt.hist(distOG,density=True,label="with outliers")
 
 iso = IsolationForest(contamination=0.1)
 mask = iso.fit_predict(x_train_2)
 isin = mask != -1
-x_train_2, y_train_2 = x_train_2[isin, :], y_train_2[isin]
+x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
 
 
 dist=[]
-for i in range(len(x_train_2)-1):
-    dist=dist+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
+for i in range(len(x_train_2_iso)-1):
+    dist=dist+[np.linalg.norm(x_train_2_iso[i]-x_train_2_iso[i+1])]
     
 plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
+plt.title("Isolation Forest")
+
+#with Minimum Covariance Determinant
+plt.figure()
+plt.hist(distOG,density=True,label="with outliers")
+
+ee = EllipticEnvelope(contamination=0.1)
+mask = ee.fit_predict(x_train_2)
+isin = mask != -1
+x_train_2_ee, y_train_2_ee = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2_ee)-1):
+    dist=dist+[np.linalg.norm(x_train_2_ee[i]-x_train_2_ee[i+1])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
+plt.title("Minimum Covariance Determinant")
+
+
+#Local Outlier Factor
+plt.figure()
+plt.hist(distOG,density=True,label="with outliers")
+
+lof = LocalOutlierFactor(contamination=0.1)
+mask = lof.fit_predict(x_train_2)
+isin = mask != -1
+x_train_2_lof, y_train_2_lof = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2_lof)-1):
+    dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[i+1])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
+plt.title("Local Outlier Factor")
+
+
+
+#One Class SVM
+plt.figure()
+plt.hist(distOG,density=True,label="with outliers")
+
+ocsvm = OneClassSVM(nu=0.01)
+mask = ocsvm.fit_predict(x_train_2)
+isin = mask != -1
+x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2_ocsvm)-1):
+    dist=dist+[np.linalg.norm(x_train_2_ocsvm[i]-x_train_2_ocsvm[i+1])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
+plt.title("One Class SVM")
