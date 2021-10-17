@@ -6,7 +6,7 @@ from sklearn import linear_model
 from sklearn import svm
 from sklearn.linear_model import SGDRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import DotProduct, WhiteKernel
+from sklearn.gaussian_process.kernels import DotProduct
 
 import warnings
 
@@ -19,11 +19,6 @@ cd = os.getcwd()
 x_train_1 = np.load(cd+'/Data/Xtrain_Regression_Part1.npy')
 y_train_1 = np.load(cd+'/Data/Ytrain_Regression_Part1.npy')
 x_test_1 = np.load(cd+'/Data/Xtest_Regression_Part1.npy')
-
-# Part 2
-# x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
-# y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
-# x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
 del cd
 
@@ -308,3 +303,38 @@ plt.grid(linestyle='--', linewidth=0.5)
 plt.savefig('lambdalasso.eps', format="eps")
 
 del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
+
+
+
+#%% PART 2
+#%%
+from sklearn.ensemble import IsolationForest
+cd=os.getcwd()
+# Part 2
+x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
+y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
+x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
+
+
+# A=[1,2,3,4,2,4,5,3,2,4,5,2,3,5,3,5,1,3]
+
+# plt.hist(A, range=(1,6))
+dist=[]
+for i in range(len(x_train_2)-1):
+    dist=dist+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
+    
+plt.figure()
+plt.hist(dist,density=True,label="with outliers")
+
+iso = IsolationForest(contamination=0.1)
+mask = iso.fit_predict(x_train_2)
+isin = mask != -1
+x_train_2, y_train_2 = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2)-1):
+    dist=dist+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
