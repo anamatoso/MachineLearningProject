@@ -119,10 +119,10 @@ def cross_val(xt,yt,k,func,*args):
     
     c = len(xt) #length of training set
     
-    if (c%k)!=0:
-        print("Cannot compute. Choose a divider of "+str(c))
-        return
-    elif k==1:
+    # if (c%k)!=0:
+    #     print("Cannot compute. Choose a divider of "+str(c))
+    #     return
+    if k==1:
         print("Cannot perform 1-fold classification since there is no test set.")
         return
     else:
@@ -312,6 +312,8 @@ from sklearn.ensemble import IsolationForest
 from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
+from sklearn.cluster import SpectralClustering
+
 
 cd=os.getcwd()
 # Part 2
@@ -320,27 +322,28 @@ y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
 x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
 
-# A=[1,2,3,4,2,4,5,3,2,4,5,2,3,5,3,5,1,3]
 
-# plt.hist(A, range=(1,6))
 distOG=[]
 for i in range(len(x_train_2)-1):
-    distOG=distOG+[np.linalg.norm(x_train_2[i]-x_train_2[i+1])]
-    
+    for j in range(i+1,len(x_train_2)):
+        distOG=distOG+[np.linalg.norm(x_train_2[i]-x_train_2[j])]
+
 
 #with isolation forest
 plt.figure()
 plt.hist(distOG,density=True,label="with outliers")
 
-iso = IsolationForest(contamination=0.1)
+iso = IsolationForest(contamination=cont_opt)
 mask = iso.fit_predict(x_train_2)
 isin = mask != -1
 x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
 
 
+
 dist=[]
 for i in range(len(x_train_2_iso)-1):
-    dist=dist+[np.linalg.norm(x_train_2_iso[i]-x_train_2_iso[i+1])]
+    for j in range(i+1,len(x_train_2_iso)):
+        dist=dist+[np.linalg.norm(x_train_2_iso[i]-x_train_2_iso[j])]
     
 plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
@@ -358,7 +361,8 @@ x_train_2_ee, y_train_2_ee = x_train_2[isin, :], y_train_2[isin]
 
 dist=[]
 for i in range(len(x_train_2_ee)-1):
-    dist=dist+[np.linalg.norm(x_train_2_ee[i]-x_train_2_ee[i+1])]
+    for j in range(i+1,len(x_train_2_ee)):
+        dist=dist+[np.linalg.norm(x_train_2_ee[i]-x_train_2_ee[j])]
     
 plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
@@ -377,7 +381,8 @@ x_train_2_lof, y_train_2_lof = x_train_2[isin, :], y_train_2[isin]
 
 dist=[]
 for i in range(len(x_train_2_lof)-1):
-    dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[i+1])]
+    for j in range(i+1,len(x_train_2_lof)):
+        dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[j])]
     
 plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
@@ -389,7 +394,7 @@ plt.title("Local Outlier Factor")
 plt.figure()
 plt.hist(distOG,density=True,label="with outliers")
 
-ocsvm = OneClassSVM(nu=0.01)
+ocsvm = OneClassSVM(nu=0.0757,kernel='sigmoid')
 mask = ocsvm.fit_predict(x_train_2)
 isin = mask != -1
 x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
@@ -397,8 +402,56 @@ x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
 
 dist=[]
 for i in range(len(x_train_2_ocsvm)-1):
-    dist=dist+[np.linalg.norm(x_train_2_ocsvm[i]-x_train_2_ocsvm[i+1])]
+    for j in range(i+1,len(x_train_2_ocsvm)):
+        dist=dist+[np.linalg.norm(x_train_2_ocsvm[i]-x_train_2_ocsvm[j])]
     
 plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
 plt.title("One Class SVM")
+
+#Spectral Clustering
+plt.figure()
+plt.hist(distOG,density=True,label="with outliers")
+
+sc = SpectralClustering(n_clusters=2, assign_labels='discretize',random_state=86,affinity='nearest_neighbors')
+mask = sc.fit_predict(x_train_2)
+isin = mask != 0
+x_train_2_sc, y_train_2_sc = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2_lof)-1):
+    for j in range(i+1,len(x_train_2_lof)):
+        dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[j])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
+plt.title("Spectral Clustering")
+
+# DESCOBRIR NOVO BEST LASSO
+
+#%% TEST 
+cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lasso',l_lasso)  
+print('\n')
+cv_lasso_k5_lof = cross_val(x_train_2_lof,y_train_2_lof,5,'gauss')  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'gauss')  
+cv_lasso_k5_ee = cross_val(x_train_2_ee,y_train_2_ee,5,'gauss')  
+cv_lasso_k5_iso = cross_val(x_train_2_iso,y_train_2_iso,5,'gauss')
+cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'gauss')
+print('\n')
+cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
+cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'lasso',l_lasso)  
+#%%
+n_out=np.linspace(0, 0.1, 1000)
+cv_lasso_k5_iso = []
+for i in n_out:
+    iso = IsolationForest(contamination=i)
+    mask = iso.fit_predict(x_train_2)
+    isin = mask != -1
+    x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
+    cv_lasso_k5_iso = cv_lasso_k5_iso + [cross_val(x_train_2_iso,y_train_2_iso,5,'svmlinear')]
+    
+# comparar: diferentes predictors, lambdas, contaminations, with and without outliers
+
+cont_opt=n_out[np.where(cv_lasso_k5_iso==np.min(cv_lasso_k5_iso))[0][0]]
