@@ -7,6 +7,8 @@ from sklearn import svm
 from sklearn.linear_model import SGDRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct
+from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import OrthogonalMatchingPursuit
 
 import warnings
 
@@ -101,6 +103,36 @@ def gausspredictor(xt,yt,xtest):
     gauss.fit(xt, yt)
     return gauss.predict(xtest)
 
+# PREDICTOR 7: ELASTIC NET
+def enpredictor(xt,yt,xtest):
+    en = ElasticNet(random_state=0)
+    en.fit(xt, yt)
+    return en.predict(xtest)
+
+# PREDICTOR 8: ORTHOGONAL MATCHING PURSUIT
+def omppredictor(xt,yt,xtest):
+    omp = OrthogonalMatchingPursuit(normalize=False)
+    omp.fit(xt, yt)
+    return omp.predict(xtest)
+
+# PREDICTOR 9: LARS
+def larspredictor(xt,yt,xtest):
+    lar = linear_model.Lars(n_nonzero_coefs=1, normalize=False)
+    lar.fit(xt, yt)
+    return lar.predict(xtest)
+
+# PREDICTOR 10: LARS LASSO
+def larslassopredictor(xt,yt,xtest):
+    lars_lasso = linear_model.LassoLars(alpha=.1, normalize=False)
+    lars_lasso.fit(xt, yt)
+    return lars_lasso.predict(xtest)
+
+# PREDICTOR 11: BAYES RIDGE
+def bayesridgepredictor(xt,yt,xtest):
+    bayesridge = linear_model.BayesianRidge()
+    bayesridge.fit(xt, yt)
+    return bayesridge.predict(xtest)
+
 # SQUARED ERRORS
 def sse(y,yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
@@ -167,12 +199,39 @@ def cross_val(xt,yt,k,func,*args):
         y_pred = np.empty((k,fold))
         for i in range(k):
             y_pred[i,:] = sgdpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
     elif func == 'gauss':
         y_pred = np.empty((k,fold))
         for i in range(k):
             y_pred[i,:] = gausspredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
     
-
+    elif func == 'en':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = enpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'omp':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = omppredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'lars':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = larspredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'larslasso':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = larslassopredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    elif func == 'bayesridge':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = bayesridgepredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+    
+    
+  
 
     # compute errors for each set
     errors = np.empty(k)
@@ -183,7 +242,7 @@ def cross_val(xt,yt,k,func,*args):
     return np.mean(errors)       
 
 
-#%% CHOOSE LAMBDA (DON'T RUN)
+#%% CHOOSE LAMBDA FOR LASSO AND RIDGE (DON'T RUN)
 # Compare cross validation errors between different lambda values
 
 l=np.logspace(-6, -3, 10000)
@@ -307,7 +366,8 @@ del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
 
 
 #%% PART 2
-#%%
+#%% OUTLIER DETECTION AND REMOVAL
+
 from sklearn.ensemble import IsolationForest
 from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
@@ -333,7 +393,7 @@ for i in range(len(x_train_2)-1):
 plt.figure()
 plt.hist(distOG,density=True,label="with outliers")
 
-iso = IsolationForest(contamination=cont_opt)
+iso = IsolationForest(contamination=0.1)
 mask = iso.fit_predict(x_train_2)
 isin = mask != -1
 x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
@@ -431,17 +491,40 @@ plt.title("Spectral Clustering")
 # DESCOBRIR NOVO BEST LASSO
 
 #%% TEST 
+print('Without outlier detection: ')
 cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
-cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lasso',l_lasso)  
 print('\n')
-cv_lasso_k5_lof = cross_val(x_train_2_lof,y_train_2_lof,5,'gauss')  
-cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'gauss')  
-cv_lasso_k5_ee = cross_val(x_train_2_ee,y_train_2_ee,5,'gauss')  
-cv_lasso_k5_iso = cross_val(x_train_2_iso,y_train_2_iso,5,'gauss')
-cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'gauss')
+# print('Testing different predictors')
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lr')  
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lasso',l_lasso_ocsvm)  
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'ridge',l_ridge_ocsvm)  
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  #best
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'sgd')  #2nd best
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'gauss')  
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'en')  #terrible
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'omp')  #terrible
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lars')  #terrible
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'larslasso')  
+# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'bayesridge')  
+
+
+
 print('\n')
-cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
-cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'lasso',l_lasso)  
+
+
+
+
+
+print('Testing different outliers detectors')
+cv_lasso_k5_lof = cross_val(x_train_2_lof,y_train_2_lof,5,'svmlinear')  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  
+cv_lasso_k5_ee = cross_val(x_train_2_ee,y_train_2_ee,5,'svmlinear')  
+cv_lasso_k5_iso = cross_val(x_train_2_iso,y_train_2_iso,5,'svmlinear')
+cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'svmlinear') #very good
+print('\n')
+# cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
+# cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'lasso',l_lasso)  
+
 #%%
 n_out=np.linspace(0, 0.1, 1000)
 cv_lasso_k5_iso = []
@@ -455,3 +538,136 @@ for i in n_out:
 # comparar: diferentes predictors, lambdas, contaminations, with and without outliers
 
 cont_opt=n_out[np.where(cv_lasso_k5_iso==np.min(cv_lasso_k5_iso))[0][0]]
+
+#%% CHOOSE LAMBDA FOR LASSO AND RIDGE (DON'T RUN)
+# Compare cross validation errors between different lambda values
+
+l = np.logspace(-6, 3, 10000)
+cv_lr_k5 = cross_val(x_train_2,y_train_2,5,'lr')   
+cv_ridge_k5_ocsvm =[]
+cv_lasso_k5_ocsvm =[]
+for i in range(len(l)):
+    cv_ridge_k5_ocsvm = cv_ridge_k5_ocsvm + [cross_val(x_train_2,y_train_2,5,'ridge',l[i])]  
+    cv_lasso_k5_ocsvm = cv_lasso_k5_ocsvm + [cross_val(x_train_2,y_train_2,5,'lasso',l[i])]
+    # print('\n')
+np.save('Data/cv_ridge_k5_ocsvm_10000.npy',cv_ridge_k5_ocsvm)
+np.save('Data/cv_lasso_k5_ocsvm_10000.npy',cv_lasso_k5_ocsvm)
+
+
+#%%
+
+l = np.logspace(-6, 3, 10000)
+cv_lr_k5 = cross_val(x_train_2,y_train_2,5,'lr')   
+cv_ridge_k5_ocsvm = np.load('Data/cv_ridge_k5_ocsvm_10000.npy')
+cv_lasso_k5_ocsvm = np.load('Data/cv_lasso_k5_ocsvm_10000.npy')
+l_lasso_ocsvm=l[np.where(cv_lasso_k5_ocsvm==np.min(cv_lasso_k5_ocsvm))[0][0]]
+l_ridge_ocsvm=l[np.where(cv_ridge_k5_ocsvm==np.min(cv_ridge_k5_ocsvm))[0][0]]
+
+plt.xscale('log')
+plt.scatter(l_lasso_ocsvm,np.min(cv_lasso_k5_ocsvm),marker='x',color='k',zorder=3)
+plt.scatter(l_ridge_ocsvm,np.min(cv_ridge_k5_ocsvm),marker='x',color='k',zorder=3)
+plt.plot(l,cv_ridge_k5_ocsvm,label='Ridge')
+plt.plot(l,cv_lasso_k5_ocsvm,label='Lasso')
+plt.axhline(y=cv_lr_k5, color='darkgray', linestyle='--') #5-fold cross val using linear regression
+plt.title('Evolution of \u03B2 values in Ridge and Lasso Regression')
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+plt.xlim((1e-6, 1e3))
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+del l
+
+#%% ISOLATION FOREST
+# Determine amount of contamination that minimizes error
+
+cont = np.linspace(0.09,0.1,1001)
+cv_svmlinear_k5_iso = []
+for i in range(len(cont)):
+    iso = IsolationForest(contamination=cont[i])
+    mask = iso.fit_predict(x_train_2)
+    isin = mask != -1
+    x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
+    cv_svmlinear_k5_iso = cv_svmlinear_k5_iso + [cross_val(x_train_2_iso,y_train_2_iso,5,'svmlinear',cont[i])]  
+    
+np.save('Data/cv_svmlinear_k5_iso.npy',cv_svmlinear_k5_iso)
+
+
+#%%
+cont = np.linspace(0.09,0.1,1001)
+cv_svmlinear_k5_iso = np.load('Data/cv_svmlinear_k5_iso.npy')
+cont_svmlinear_iso = cont[np.where(cv_svmlinear_k5_iso==np.min(cv_svmlinear_k5_iso))[0][0]]
+
+plt.figure()
+plt.scatter(cont_svmlinear_iso,np.min(cv_svmlinear_k5_iso),marker='x',color='k',zorder=3)
+plt.plot(cont,cv_svmlinear_k5_iso,label='Isolation')
+plt.title('Cross validation error depending on contamination level') #for SVMLinear predictor and Isolation forestfor outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+plt.xlim((0.09, 0.1))
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+
+#%% ELEPTICAL ENVELOPE
+# Determine amount of contamination that minimizes error
+
+cont = np.linspace(0,0.1,1001)
+cv_svmlinear_k5_ee = []
+for i in range(len(cont)):
+    ee = EllipticEnvelope(contamination=cont[i])
+    mask = ee.fit_predict(x_train_2)
+    isin = mask != -1
+    x_train_2_ee, y_train_2_ee = x_train_2[isin, :], y_train_2[isin]
+    cv_svmlinear_k5_ee = cv_svmlinear_k5_ee + [cross_val(x_train_2_ee,y_train_2_ee,5,'svmlinear',cont[i])]  
+    
+np.save('Data/cv_svmlinear_k5_ee.npy',cv_svmlinear_k5_ee)
+
+
+#%%
+cont = np.linspace(0,0.1,1001)
+cv_svmlinear_k5_ee = np.load('Data/cv_svmlinear_k5_ee.npy')
+cont_svmlinear_ee = cont[np.where(cv_svmlinear_k5_ee==np.min(cv_svmlinear_k5_ee))[0][0]]
+
+plt.figure()
+plt.scatter(cont_svmlinear_ee,np.min(cv_svmlinear_k5_ee),marker='x',color='k',zorder=3)
+plt.plot(cont,cv_svmlinear_k5_ee,label='Eleptical Envelope')
+plt.title('eliptical envelope & svmlinear') #for SVMLinear predictor and Envelope for outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+plt.xlim((0, 0.1))
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+#%% LOF
+# Determine amount of contamination that minimizes error
+
+cont = np.linspace(0.0001,0.1,1000)
+cv_svmlinear_k5_lof = []
+for i in range(len(cont)):
+    lof = LocalOutlierFactor(contamination=cont[i])
+    mask = lof.fit_predict(x_train_2)
+    isin = mask != -1
+    x_train_2_lof, y_train_2_lof = x_train_2[isin, :], y_train_2[isin]
+
+    cv_svmlinear_k5_lof = cv_svmlinear_k5_lof + [cross_val(x_train_2_lof,y_train_2_lof,5,'svmlinear',cont[i])]  
+    
+np.save('Data/cv_svmlinear_k5_lof.npy',cv_svmlinear_k5_lof)
+
+
+#%%
+cont = np.linspace(0,0.1,1001)
+cv_svmlinear_k5_ee = np.load('Data/cv_svmlinear_k5_ee.npy')
+cont_svmlinear_ee = cont[np.where(cv_svmlinear_k5_ee==np.min(cv_svmlinear_k5_ee))[0][0]]
+
+plt.figure()
+plt.scatter(cont_svmlinear_ee,np.min(cv_svmlinear_k5_ee),marker='x',color='k',zorder=3)
+plt.plot(cont,cv_svmlinear_k5_ee,label='Eleptical Envelope')
+plt.title('lof & svmlinear') #for SVMLinear predictor and Envelope for outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+plt.xlim((0, 0.1))
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+
