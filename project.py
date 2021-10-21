@@ -373,6 +373,7 @@ from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
 from sklearn.cluster import SpectralClustering
+from sklearn.cluster import DBSCAN
 
 
 cd=os.getcwd()
@@ -488,7 +489,24 @@ plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
 plt.title("Spectral Clustering")
 
-# DESCOBRIR NOVO BEST LASSO
+# DBSCAN
+plt.figure()
+plt.hist(distOG,density=True,label="with outliers")
+
+dbs = DBSCAN(eps=4, min_samples=2)
+mask = dbs.fit_predict(x_train_2)
+isin = mask != 0
+x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+
+
+dist=[]
+for i in range(len(x_train_2_dbs)-1):
+    for j in range(i+1,len(x_train_2_dbs)):
+        dist=dist+[np.linalg.norm(x_train_2_dbs[i]-x_train_2_dbs[j])]
+    
+plt.hist(dist,density=True,label="without outliers")
+plt.legend(loc="best")
+plt.title("DBSCAN")
 
 #%% TEST 
 print('Without outlier detection: ')
@@ -521,6 +539,8 @@ cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')
 cv_lasso_k5_ee = cross_val(x_train_2_ee,y_train_2_ee,5,'svmlinear')  
 cv_lasso_k5_iso = cross_val(x_train_2_iso,y_train_2_iso,5,'svmlinear')
 cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'svmlinear') #very good
+cv_svmlinear_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear') #very good
+
 print('\n')
 # cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
 # cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'lasso',l_lasso)  
@@ -544,15 +564,21 @@ cont_opt=n_out[np.where(cv_lasso_k5_iso==np.min(cv_lasso_k5_iso))[0][0]]
 
 l = np.logspace(-6, 3, 10000)
 cv_lr_k5 = cross_val(x_train_2,y_train_2,5,'lr')   
-cv_ridge_k5_ocsvm =[]
-cv_lasso_k5_ocsvm =[]
+cv_ridge_k5_dbs =[]
+cv_lasso_k5_dbs =[]
 for i in range(len(l)):
-    cv_ridge_k5_ocsvm = cv_ridge_k5_ocsvm + [cross_val(x_train_2,y_train_2,5,'ridge',l[i])]  
-    cv_lasso_k5_ocsvm = cv_lasso_k5_ocsvm + [cross_val(x_train_2,y_train_2,5,'lasso',l[i])]
+    dbs = DBSCAN(eps=dista[i], min_samples=2)
+    mask = dbs.fit_predict(x_train_2)
+    isin = mask != 0
+    x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+    if len(x_train_2_dbs)>=90:
+        cv_ridge_k5_dbs = cv_ridge_k5_dbs + [cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l[i])]  
+        cv_lasso_k5_dbs = cv_lasso_k5_dbs + [cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l[i])]
     # print('\n')
-np.save('Data/cv_ridge_k5_ocsvm_10000.npy',cv_ridge_k5_ocsvm)
-np.save('Data/cv_lasso_k5_ocsvm_10000.npy',cv_lasso_k5_ocsvm)
-
+np.save('Data/cv_ridge_k5_dbs_10000.npy',cv_ridge_k5_dbs)
+np.save('Data/cv_lasso_k5_dbs_10000.npy',cv_lasso_k5_dbs)
+l_lasso_dbs=l[np.where(cv_lasso_k5_dbs==np.min(cv_lasso_k5_dbs))[0][0]]
+l_ridge_dbs=l[np.where(cv_ridge_k5_dbs==np.min(cv_ridge_k5_dbs))[0][0]]
 
 #%%
 
@@ -600,7 +626,7 @@ cont_svmlinear_iso = cont[np.where(cv_svmlinear_k5_iso==np.min(cv_svmlinear_k5_i
 
 plt.figure()
 plt.scatter(cont_svmlinear_iso,np.min(cv_svmlinear_k5_iso),marker='x',color='k',zorder=3)
-plt.plot(cont,cv_svmlinear_k5_iso,label='Isolation')
+plt.scatter(cont,cv_svmlinear_k5_iso,label='Isolation')
 plt.title('Cross validation error depending on contamination level') #for SVMLinear predictor and Isolation forestfor outliers
 plt.xlabel('\u03BB')
 plt.ylabel('Error')
@@ -656,18 +682,229 @@ np.save('Data/cv_svmlinear_k5_lof.npy',cv_svmlinear_k5_lof)
 
 
 #%%
-cont = np.linspace(0,0.1,1001)
-cv_svmlinear_k5_ee = np.load('Data/cv_svmlinear_k5_ee.npy')
-cont_svmlinear_ee = cont[np.where(cv_svmlinear_k5_ee==np.min(cv_svmlinear_k5_ee))[0][0]]
+cont = np.linspace(0.0001,0.1,1000)
+cv_svmlinear_k5_lof = np.load('Data/cv_svmlinear_k5_lof.npy')
+cont_svmlinear_lof = cont[np.where(cv_svmlinear_k5_lof==np.min(cv_svmlinear_k5_lof))[0][0]]
 
 plt.figure()
-plt.scatter(cont_svmlinear_ee,np.min(cv_svmlinear_k5_ee),marker='x',color='k',zorder=3)
-plt.plot(cont,cv_svmlinear_k5_ee,label='Eleptical Envelope')
+plt.scatter(cont_svmlinear_lof,np.min(cv_svmlinear_k5_lof),marker='x',color='k',zorder=3)
+plt.plot(cont,cv_svmlinear_k5_lof,label='Eleptical Envelope')
 plt.title('lof & svmlinear') #for SVMLinear predictor and Envelope for outliers
 plt.xlabel('\u03BB')
 plt.ylabel('Error')
-plt.xlim((0, 0.1))
+plt.xlim((0.0001, 0.1))
 plt.legend(loc='best')
 # plt.savefig('comparelambdaserror.eps', format="eps")
 
+#%% DBSCAN change eps parameter with svmlinear
+# Determine amount of contamination that minimizes error
 
+dista = np.linspace(3,5,1001)
+dista_used = []
+cv_svmlinear_k5_dbs = []
+for i in range(len(dista)):
+    dbs = DBSCAN(eps=dista[i], min_samples=2)
+    mask = dbs.fit_predict(x_train_2)
+    isin = mask != 0
+    x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+    if len(x_train_2_dbs)>=90:
+        cv_svmlinear_k5_dbs = cv_svmlinear_k5_dbs + [cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear',dista[i])]  
+        dista_used += [dista[i]]
+        print(str(dista[i]))
+        
+    
+np.save('Data/cv_svmlinear_k5_dbs.npy',cv_svmlinear_k5_dbs)
+np.save('Data/dista_used.npy',dista_used)
+
+
+#%%
+cv_svmlinear_k5_dbs = np.load('Data/cv_svmlinear_k5_dbs.npy')
+dista_used = np.load('Data/dista_used.npy')
+dist_svmlinear_dbs = dista_used[np.where(cv_svmlinear_k5_dbs==np.min(cv_svmlinear_k5_dbs))[0][0]]
+
+plt.figure()
+plt.scatter(dist_svmlinear_dbs,np.min(cv_svmlinear_k5_dbs),marker='x',color='k',zorder=3)
+plt.plot(dista_used,cv_svmlinear_k5_dbs,label='DBScan')
+plt.title('dbscan & svmlinear') #for SVMLinear predictor and Envelope for outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+# plt.xlim((3, 5))
+plt.tight_layout()
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+# For the obtained distance value, calculate error with other predictors
+
+# But first, lambda for ridge and lasso
+l = np.logspace(-6, 3, 1000)
+cv_ridge_k5_dbs =[]
+cv_lasso_k5_dbs =[]
+dbs = DBSCAN(eps=dist_svmlinear_dbs, min_samples=2)
+mask = dbs.fit_predict(x_train_2)
+isin = mask != 0
+x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+for i in range(len(l)):
+    cv_ridge_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l[i])]  
+    cv_lasso_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l[i])]
+
+l_lasso_dbs=l[np.where(cv_lasso_k5_dbs==np.min(cv_lasso_k5_dbs))[0][0]]
+l_ridge_dbs=l[np.where(cv_ridge_k5_dbs==np.min(cv_ridge_k5_dbs))[0][0]]
+
+
+cv_lr_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lr')  
+print('\n')
+cv_lasso_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l_lasso_dbs)  
+print('\n')
+cv_ridge_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l_ridge_dbs)  
+print('\n')
+cv_svmlinear_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear')  # 2ndbest
+print('\n')
+cv_sgd_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'sgd')  # best
+print('\n')
+cv_gauss_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'gauss')  
+print('\n')
+cv_en_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'en')  
+print('\n')
+cv_omp_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'omp')  
+print('\n')
+cv_lars_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lars')  
+print('\n')
+cv_larslasso_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'larslasso')  
+print('\n')
+cv_bayesridge_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'bayesridge')  
+
+# Since the predictor SGD yielded the best result, now we'll perform the same analysis using this.
+
+#%% DBSCAN change eps parameter with sgd
+# Determine amount of contamination that minimizes error
+
+dista = np.linspace(3,5,1001)
+dista_used = []
+cv_sgd_k5_dbs = []
+for i in range(len(dista)):
+    dbs = DBSCAN(eps=dista[i], min_samples=2)
+    mask = dbs.fit_predict(x_train_2)
+    isin = mask != 0
+    x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+    if len(x_train_2_dbs)>=90:
+        cv_sgd_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'sgd',dista[i])]  
+        dista_used += [dista[i]]
+        print(str(dista[i]))
+        
+    
+dist_sgd_dbs = dista_used[np.where(cv_sgd_k5_dbs==np.min(cv_sgd_k5_dbs))[0][0]]
+
+plt.figure()
+plt.scatter(dist_sgd_dbs,np.min(cv_sgd_k5_dbs),marker='x',color='k',zorder=3)
+plt.plot(dista_used,cv_sgd_k5_dbs,label='DBScan')
+plt.title('dbscan & sgd') #for SVMLinear predictor and Envelope for outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+# plt.xlim((3, 5))
+plt.tight_layout()
+plt.legend(loc='best')
+# plt.savefig('comparelambdaserror.eps', format="eps")
+
+# For the obtained distance value, calculate error with other predictors
+
+# But first, lambda for ridge and lasso
+# l = np.logspace(-6, 3, 1000)
+# cv_ridge_k5_dbs =[]
+# cv_lasso_k5_dbs =[]
+# dbs = DBSCAN(eps=dist_sgd_dbs, min_samples=2)
+# mask = dbs.fit_predict(x_train_2)
+# isin = mask != 0
+# x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+# for i in range(len(l)):
+#     cv_ridge_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l[i])]  
+#     cv_lasso_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l[i])]
+
+# l_lasso_dbs=l[np.where(cv_lasso_k5_dbs==np.min(cv_lasso_k5_dbs))[0][0]]
+# l_ridge_dbs=l[np.where(cv_ridge_k5_dbs==np.min(cv_ridge_k5_dbs))[0][0]]
+
+
+cv_lr_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lr')  
+print('\n')
+cv_lasso_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l_lasso_dbs)  
+print('\n')
+cv_ridge_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l_ridge_dbs)  
+print('\n')
+cv_svmlinear_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear')  
+print('\n')
+cv_sgd_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'sgd')  
+print('\n')
+cv_gauss_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'gauss')  
+print('\n')
+cv_en_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'en')  
+print('\n')
+cv_omp_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'omp')  
+print('\n')
+cv_lars_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'lars')  
+print('\n')
+cv_larslasso_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'larslasso')  
+print('\n')
+cv_bayesridge_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'bayesridge')  
+
+
+
+########
+
+dbs = DBSCAN(eps=dist_sgd_dbs, min_samples=2)
+mask = dbs.fit_predict(x_train_2)
+isin = mask != 0
+x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+cv_sgd_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'sgd')  
+print('\n')
+
+dbs = DBSCAN(eps=dist_svmlinear_dbs, min_samples=2)
+mask = dbs.fit_predict(x_train_2)
+isin = mask != 0
+x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
+cv_svmlinear_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear')  
+print('\n')
+
+ocsvm = OneClassSVM(nu=0.0757,kernel='sigmoid')
+mask = ocsvm.fit_predict(x_train_2)
+isin = mask != -1
+x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
+cv_svmlinear_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  
+print('\n')
+cv_sgd_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'sgd')  
+
+
+#%%
+num = np.linspace(0.01,1,1000)
+cv_sgd_k5_ocsvm = []
+cv_svmlinear_k5_ocsvm = []
+size_xtrain=[]
+nu_used = []
+for i in range(len(num)):
+    ocsvm = OneClassSVM(nu=num[i],kernel='sigmoid')
+    mask = ocsvm.fit_predict(x_train_2)
+    isin = mask != -1
+    x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
+    if len(x_train_2_ocsvm)>=90:
+        cv_sgd_k5_ocsvm += [cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'sgd')] 
+        cv_svmlinear_k5_ocsvm += [cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')]  
+        nu_used += [num[i]]
+        size_xtrain+=[len(x_train_2_ocsvm)]
+        print(str(num[i]))
+
+nu_sgd_ocsvm = nu_used[np.where(cv_sgd_k5_ocsvm==np.min(cv_sgd_k5_ocsvm))[0][0]]
+nu_svmlinear_ocsvm = nu_used[np.where(cv_svmlinear_k5_ocsvm==np.min(cv_svmlinear_k5_ocsvm))[0][0]]
+
+plt.figure()
+plt.scatter(nu_sgd_ocsvm,np.min(cv_sgd_k5_ocsvm),marker='x',color='k',zorder=3)
+plt.scatter(nu_svmlinear_ocsvm,np.min(cv_svmlinear_k5_ocsvm),marker='x',color='k',zorder=3)
+plt.plot(nu_used,cv_sgd_k5_ocsvm,label='sgd')
+plt.plot(nu_used,cv_svmlinear_k5_ocsvm,label='svmlinear')
+
+plt.title('ocsvm + svmlinear & sgd') #for SVMLinear predictor and Envelope for outliers
+plt.xlabel('\u03BB')
+plt.ylabel('Error')
+# plt.xlim((3, 5))
+plt.tight_layout()
+plt.legend(loc='best')
+
+plt.figure()
+plt.plot(nu_used,size_xtrain,label='size xtrain')
