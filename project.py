@@ -470,24 +470,7 @@ plt.hist(dist,density=True,label="without outliers")
 plt.legend(loc="best")
 plt.title("One Class SVM")
 
-#Spectral Clustering
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
 
-sc = SpectralClustering(n_clusters=2, assign_labels='discretize',random_state=86,affinity='nearest_neighbors')
-mask = sc.fit_predict(x_train_2)
-isin = mask != 0
-x_train_2_sc, y_train_2_sc = x_train_2[isin, :], y_train_2[isin]
-
-
-dist=[]
-for i in range(len(x_train_2_lof)-1):
-    for j in range(i+1,len(x_train_2_lof)):
-        dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[j])]
-    
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("Spectral Clustering")
 
 # DBSCAN
 plt.figure()
