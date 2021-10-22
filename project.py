@@ -522,6 +522,14 @@ for outlier in outlierfunc:
         print('end',pred)
         
     print('end',outlier)
+#%%
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i][-1]<m:
+        m=list_result[i][-1]
+        ind=i
+print(list_result[ind])
 
 #%% TEST 
 print('Without outlier detection: ')
