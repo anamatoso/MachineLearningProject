@@ -238,9 +238,18 @@ def cross_val(xt,yt,k,func,*args):
     for i in range(k):
         errors[i] = sse(y_test[i,:],y_pred[i,:])/fold
     
-    print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
+    #print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)       
 
+def bestlasso(lassovector,xt,yt):
+    bestl=0 
+    minerror=1000000
+    for l in lassovector:
+        error=cross_val(xt,yt,5,'lasso',l)
+        if minerror>error:
+            minerror=error
+            bestl=l
+    return bestl
 
 #%% CHOOSE LAMBDA FOR LASSO AND RIDGE (DON'T RUN)
 # Compare cross validation errors between different lambda values
@@ -372,156 +381,156 @@ from sklearn.ensemble import IsolationForest
 from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
-from sklearn.cluster import SpectralClustering
 from sklearn.cluster import DBSCAN
 
 
 cd=os.getcwd()
-# Part 2
+
 x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
 y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
 x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
 
 
-distOG=[]
-for i in range(len(x_train_2)-1):
-    for j in range(i+1,len(x_train_2)):
-        distOG=distOG+[np.linalg.norm(x_train_2[i]-x_train_2[j])]
-
-
 #with isolation forest
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
-
-iso = IsolationForest(contamination=0.1)
-mask = iso.fit_predict(x_train_2)
-isin = mask != -1
-x_train_2_iso, y_train_2_iso = x_train_2[isin, :], y_train_2[isin]
-
-
-
-dist=[]
-for i in range(len(x_train_2_iso)-1):
-    for j in range(i+1,len(x_train_2_iso)):
-        dist=dist+[np.linalg.norm(x_train_2_iso[i]-x_train_2_iso[j])]
-    
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("Isolation Forest")
+def isoforest(xt,yt,cont):
+    iso = IsolationForest(contamination=cont)
+    mask = iso.fit_predict(xt)
+    isin = mask != -1
+    x_train_2_iso, y_train_2_iso = xt[isin, :], yt[isin]
+    return x_train_2_iso, y_train_2_iso
 
 #with Minimum Covariance Determinant
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
-
-ee = EllipticEnvelope(contamination=0.1)
-mask = ee.fit_predict(x_train_2)
-isin = mask != -1
-x_train_2_ee, y_train_2_ee = x_train_2[isin, :], y_train_2[isin]
-
-
-dist=[]
-for i in range(len(x_train_2_ee)-1):
-    for j in range(i+1,len(x_train_2_ee)):
-        dist=dist+[np.linalg.norm(x_train_2_ee[i]-x_train_2_ee[j])]
-    
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("Minimum Covariance Determinant")
-
+def ellienv(xt,yt,cont):
+    iso = EllipticEnvelope(contamination=cont)
+    mask = iso.fit_predict(xt)
+    isin = mask != -1
+    x_train_2_ee, y_train_2_ee = xt[isin, :], yt[isin]
+    return x_train_2_ee, y_train_2_ee
 
 #Local Outlier Factor
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
-
-lof = LocalOutlierFactor(contamination=0.1)
-mask = lof.fit_predict(x_train_2)
-isin = mask != -1
-x_train_2_lof, y_train_2_lof = x_train_2[isin, :], y_train_2[isin]
-
-
-dist=[]
-for i in range(len(x_train_2_lof)-1):
-    for j in range(i+1,len(x_train_2_lof)):
-        dist=dist+[np.linalg.norm(x_train_2_lof[i]-x_train_2_lof[j])]
-    
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("Local Outlier Factor")
-
-
+def lof(xt,yt,cont):
+    iso = LocalOutlierFactor(contamination=cont)
+    mask = iso.fit_predict(xt)
+    isin = mask != -1
+    x_train_2_lof, y_train_2_lof = xt[isin, :], yt[isin]
+    return x_train_2_lof, y_train_2_lof
 
 #One Class SVM
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
-
-ocsvm = OneClassSVM(nu=0.0757,kernel='sigmoid')
-mask = ocsvm.fit_predict(x_train_2)
-isin = mask != -1
-x_train_2_ocsvm, y_train_2_ocsvm = x_train_2[isin, :], y_train_2[isin]
-
-
-dist=[]
-for i in range(len(x_train_2_ocsvm)-1):
-    for j in range(i+1,len(x_train_2_ocsvm)):
-        dist=dist+[np.linalg.norm(x_train_2_ocsvm[i]-x_train_2_ocsvm[j])]
-    
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("One Class SVM")
-
-
+def ocsvm(xt,yt,cont):
+    iso = OneClassSVM(nu=cont,kernel='sigmoid')
+    mask = iso.fit_predict(xt)
+    isin = mask != -1
+    x_train_2_ocsvm, y_train_2_ocsvm = xt[isin, :], yt[isin]
+    return x_train_2_ocsvm, y_train_2_ocsvm
 
 # DBSCAN
-plt.figure()
-plt.hist(distOG,density=True,label="with outliers")
+def dbscan(xt,yt,eps):
+    dbs = DBSCAN(eps=eps, min_samples=2)
+    mask = dbs.fit_predict(xt)
+    isin = mask != 0
+    x_train_2_dbs, y_train_2_dbs = xt[isin, :], yt[isin]
+    return x_train_2_dbs, y_train_2_dbs
 
-dbs = DBSCAN(eps=4, min_samples=2)
-mask = dbs.fit_predict(x_train_2)
-isin = mask != 0
-x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
-
-
-dist=[]
-for i in range(len(x_train_2_dbs)-1):
-    for j in range(i+1,len(x_train_2_dbs)):
-        dist=dist+[np.linalg.norm(x_train_2_dbs[i]-x_train_2_dbs[j])]
+def outlierremoval(xt,yt,k,func):
+    # remove outliers
+    # xt: training set
+    # yt: test set
+    # k: function parameter
+    if func == 'iso':
+        xt,yt=isoforest(xt,yt,k)
     
-plt.hist(dist,density=True,label="without outliers")
-plt.legend(loc="best")
-plt.title("DBSCAN")
+    elif func == 'ee':
+        xt,yt=ellienv(xt,yt,k)
+    
+    elif func == 'lof':
+        xt,yt=lof(xt,yt,k)
 
+    elif func == 'ocsvm':
+        xt,yt=ocsvm(xt,yt,k)
+
+    elif func == 'dbscan':
+        xt,yt=dbscan(xt,yt,k)
+        
+    return xt,yt
+
+outlierfunc=['iso','ee','lof','ocsvm','dbscan']
+predfunc=['svmlinear','lasso','sgd','ocsvm','dbscan']
+cont_v=np.linspace(0.0001,0.1,1000)
+nu_v = np.linspace(0.01,1,1000)
+eps_v = np.linspace(3,5,1001)
+lassovector = np.logspace(-6, 0, 100)
+
+list_result=[]
+for outlier in outlierfunc:
+    for pred in predfunc:
+        if outlier=='ocsvm':
+            
+            for nu in nu_v:
+                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,nu,outlier)
+                if len(xtrain)>=90:
+                    if not (pred=='lasso'):
+                        error=cross_val(xtrain, ytrain, 5, pred)
+                        list_result+=[outlier,pred,nu,error]#save results
+                        print(pred)
+                    else:
+                        error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
+                        list_result+=[outlier,pred,nu,error]
+                        print(pred)
+            print(outlier)
+        
+        elif outlier=='dbscan':
+            for eps in eps_v:
+                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,eps,outlier)
+                if len(xtrain)>=90:
+                    if not (pred=='lasso'):
+                        error=cross_val(xtrain, ytrain, 5, pred)
+                        list_result+=[outlier,pred,eps,error]
+                        print(pred)
+                    else:
+                        error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
+                        list_result+=[outlier,pred,eps,error]
+                        print(pred)
+            print(outlier)
+        else:  
+            for cont in cont_v:
+                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,cont,outlier)
+                
+                if len(xtrain)>=90:
+                    if not (pred=='lasso'):
+                        error=cross_val(xtrain, ytrain, 5, pred)
+                        list_result+=[outlier,pred,cont,error]
+                        print(pred)
+                    else:
+                        error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
+                        list_result+=[outlier,pred,cont,error]
+                        print(pred)
+            print(outlier)
+        
+        
+
+print('\n'.join('{}: {}'.format(*k) for k in enumerate(list_result)))
 #%% TEST 
 print('Without outlier detection: ')
 cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
 print('\n')
-# print('Testing different predictors')
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lr')  
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lasso',l_lasso_ocsvm)  
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'ridge',l_ridge_ocsvm)  
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  #best
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'sgd')  #2nd best
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'gauss')  
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'en')  #terrible
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'omp')  #terrible
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lars')  #terrible
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'larslasso')  
-# cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'bayesridge')  
-
-
+print('Testing different predictors')
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lr')  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'lasso',l_lasso_ocsvm)  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'ridge',l_ridge_ocsvm)  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  #best
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'sgd')  #2nd best
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'gauss')  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'larslasso')  
+cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'bayesridge')  
 
 print('\n')
-
-
-
-
 
 print('Testing different outliers detectors')
 cv_lasso_k5_lof = cross_val(x_train_2_lof,y_train_2_lof,5,'svmlinear')  
 cv_lasso_k5_ocsvm = cross_val(x_train_2_ocsvm,y_train_2_ocsvm,5,'svmlinear')  
 cv_lasso_k5_ee = cross_val(x_train_2_ee,y_train_2_ee,5,'svmlinear')  
 cv_lasso_k5_iso = cross_val(x_train_2_iso,y_train_2_iso,5,'svmlinear')
-cv_lasso_k5_sc = cross_val(x_train_2_sc,y_train_2_sc,5,'svmlinear') #very good
 cv_svmlinear_k5_dbs = cross_val(x_train_2_dbs,y_train_2_dbs,5,'svmlinear') #very good
 
 print('\n')
@@ -547,7 +556,6 @@ cont_opt=n_out[np.where(cv_lasso_k5_iso==np.min(cv_lasso_k5_iso))[0][0]]
 
 l = np.logspace(-6, 3, 10000)
 cv_lr_k5 = cross_val(x_train_2,y_train_2,5,'lr')   
-cv_ridge_k5_dbs =[]
 cv_lasso_k5_dbs =[]
 for i in range(len(l)):
     dbs = DBSCAN(eps=dista[i], min_samples=2)
@@ -555,13 +563,14 @@ for i in range(len(l)):
     isin = mask != 0
     x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
     if len(x_train_2_dbs)>=90:
-        cv_ridge_k5_dbs = cv_ridge_k5_dbs + [cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l[i])]  
         cv_lasso_k5_dbs = cv_lasso_k5_dbs + [cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l[i])]
     # print('\n')
 np.save('Data/cv_ridge_k5_dbs_10000.npy',cv_ridge_k5_dbs)
 np.save('Data/cv_lasso_k5_dbs_10000.npy',cv_lasso_k5_dbs)
 l_lasso_dbs=l[np.where(cv_lasso_k5_dbs==np.min(cv_lasso_k5_dbs))[0][0]]
 l_ridge_dbs=l[np.where(cv_ridge_k5_dbs==np.min(cv_ridge_k5_dbs))[0][0]]
+
+
 
 #%%
 
