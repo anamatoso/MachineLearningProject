@@ -527,6 +527,8 @@ list_result_lasso = list_result
 np.save('Data/list_result_lasso.npy',list_result)
 # np.save('Data/list_result.npy',list_result)
 # list_result = np.load('Data/list_result.npy')
+list_result = np.load('Data/list_result.npy')
+list_result_lasso = np.load('Data/list_result_lasso.npy')
 #%%
 m=10
 ind=0
@@ -535,6 +537,23 @@ for i in range(len(list_result_lasso)):
         m=float(list_result_lasso[i,-1])
         ind=i
 print(list_result_lasso[ind])
+
+m=10
+ind=0
+for i in range(len(list_result)):
+    if float(list_result[i,-1])<m:
+        m=float(list_result[i,-1])
+        ind=i
+print(list_result[ind])
+
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i,0]!='ocsvm':
+        if float(list_result[i,-1])<m:
+            m=float(list_result[i,-1])
+            ind=i
+print(list_result[ind])
 
 #%% TEST 
 print('Without outlier detection: ')
