@@ -522,12 +522,15 @@ for outlier in outlierfunc:
         print('end',pred)
         
     print('end',outlier)
+    
+np.save('Data/list_result.npy',list_result)
+list_result = np.load('Data/list_result.npy')
 #%%
 m=10
 ind=0
 for i in range(len(list_result)):
-    if list_result[i][-1]<m:
-        m=list_result[i][-1]
+    if float(list_result[i,-1])<m:
+        m=float(list_result[i,-1])
         ind=i
 print(list_result[ind])
 
