@@ -455,7 +455,7 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-predfunc=['svmlinear','lasso','sgd','ocsvm','dbscan']
+predfunc=['svmlinear','lasso','sgd']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -463,7 +463,9 @@ lassovector = np.logspace(-6, 0, 100)
 
 list_result=[]
 for outlier in outlierfunc:
+    print('start',outlier)
     for pred in predfunc:
+        print('start',pred)
         if outlier=='ocsvm':
             
             for nu in nu_v:
@@ -471,13 +473,10 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result+=[outlier,pred,nu,error]#save results
-                        print(pred)
+                        list_result=[list_result,[outlier,pred,nu,error]]#save results
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result+=[outlier,pred,nu,error]
-                        print(pred)
-            print(outlier)
+                        list_result=[list_result,[outlier,pred,nu,error]]
         
         elif outlier=='dbscan':
             for eps in eps_v:
@@ -485,13 +484,11 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result+=[outlier,pred,eps,error]
-                        print(pred)
+                        list_result=[list_result,[outlier,pred,eps,error]]
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result+=[outlier,pred,eps,error]
-                        print(pred)
-            print(outlier)
+                        list_result=[list_result,[outlier,pred,eps,error]]
+
         else:  
             for cont in cont_v:
                 xtrain,ytrain=outlierremoval(x_train_2,y_train_2,cont,outlier)
@@ -499,15 +496,14 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result+=[outlier,pred,cont,error]
-                        print(pred)
+                        list_result=[list_result,[outlier,pred,cont,error]]
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result+=[outlier,pred,cont,error]
-                        print(pred)
-            print(outlier)
+                        list_result=[list_result,[outlier,pred,cont,error]]
+            
+        print('end',pred)
         
-        
+    print('end',outlier)
 
 print('\n'.join('{}: {}'.format(*k) for k in enumerate(list_result)))
 #%% TEST 
