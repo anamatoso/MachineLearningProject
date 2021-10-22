@@ -455,7 +455,7 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-predfunc=['svmlinear','sgd']
+predfunc=['lasso']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -522,17 +522,19 @@ for outlier in outlierfunc:
         print('end',pred)
         
     print('end',outlier)
-    
-np.save('Data/list_result.npy',list_result)
-list_result = np.load('Data/list_result.npy')
+
+list_result_lasso = list_result  
+np.save('Data/list_result_lasso.npy',list_result)
+# np.save('Data/list_result.npy',list_result)
+# list_result = np.load('Data/list_result.npy')
 #%%
 m=10
 ind=0
-for i in range(len(list_result)):
-    if float(list_result[i,-1])<m:
-        m=float(list_result[i,-1])
+for i in range(len(list_result_lasso)):
+    if float(list_result_lasso[i,-1])<m:
+        m=float(list_result_lasso[i,-1])
         ind=i
-print(list_result[ind])
+print(list_result_lasso[ind])
 
 #%% TEST 
 print('Without outlier detection: ')
