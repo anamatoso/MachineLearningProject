@@ -455,7 +455,7 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-predfunc=['svmlinear','lasso','sgd']
+predfunc=['svmlinear','sgd']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -478,10 +478,10 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result=[list_result,[outlier,pred,nu,error]]#save results
+                        list_result.append([outlier,pred,nu,error])#save results
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result=[list_result,[outlier,pred,nu,error]]
+                        list_result.append([outlier,pred,nu,error])
                 progress=i/len_nu
                 i+=1
                 sys.stdout.write('\r')
@@ -494,10 +494,10 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result=[list_result,[outlier,pred,eps,error]]
+                        list_result.append([outlier,pred,eps,error])
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result=[list_result,[outlier,pred,eps,error]]
+                        list_result.append([outlier,pred,eps,error])
                 progress=i/len_eps
                 i+=1
                 sys.stdout.write('\r')
@@ -510,10 +510,10 @@ for outlier in outlierfunc:
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result=[list_result,[outlier,pred,cont,error]]
+                        list_result.append([outlier,pred,cont,error])
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result=[list_result,[outlier,pred,cont,error]]
+                        list_result.append([outlier,pred,cont,error])
                 progress=i/len_nu
                 i+=1
                 sys.stdout.write('\r')
