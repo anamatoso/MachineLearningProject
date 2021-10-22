@@ -382,7 +382,7 @@ from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
 from sklearn.cluster import DBSCAN
-
+import sys
 
 cd=os.getcwd()
 
@@ -461,11 +461,16 @@ nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
 lassovector = np.logspace(-6, 0, 100)
 
+len_nu=len(nu_v)
+len_cont=len(cont_v)
+len_eps=len(eps_v)
+
 list_result=[]
 for outlier in outlierfunc:
     print('start',outlier)
     for pred in predfunc:
         print('start',pred)
+        i=0
         if outlier=='ocsvm':
             
             for nu in nu_v:
@@ -477,6 +482,11 @@ for outlier in outlierfunc:
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
                         list_result=[list_result,[outlier,pred,nu,error]]
+                progress=i/len_nu
+                i+=1
+                sys.stdout.write('\r')
+                sys.stdout.write("[%-100s] %d%%" % ('='*int(progress*100), progress*100))
+                sys.stdout.flush()        
         
         elif outlier=='dbscan':
             for eps in eps_v:
@@ -488,11 +498,15 @@ for outlier in outlierfunc:
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
                         list_result=[list_result,[outlier,pred,eps,error]]
+                progress=i/len_eps
+                i+=1
+                sys.stdout.write('\r')
+                sys.stdout.write("[%-100s] %d%%" % ('='*int(progress*100), progress*100))
+                sys.stdout.flush()  
 
         else:  
             for cont in cont_v:
                 xtrain,ytrain=outlierremoval(x_train_2,y_train_2,cont,outlier)
-                
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
@@ -500,7 +514,11 @@ for outlier in outlierfunc:
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
                         list_result=[list_result,[outlier,pred,cont,error]]
-            
+                progress=i/len_nu
+                i+=1
+                sys.stdout.write('\r')
+                sys.stdout.write("[%-100s] %d%%" % ('='*int(progress*100), progress*100))
+                sys.stdout.flush()  
         print('end',pred)
         
     print('end',outlier)
