@@ -523,7 +523,6 @@ for outlier in outlierfunc:
         
     print('end',outlier)
 
-print('\n'.join('{}: {}'.format(*k) for k in enumerate(list_result)))
 #%% TEST 
 print('Without outlier detection: ')
 cv_lasso_k5 = cross_val(x_train_2,y_train_2,5,'lasso',l_lasso)  
