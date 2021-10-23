@@ -9,6 +9,8 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct
 from sklearn.linear_model import ElasticNet
 from sklearn.linear_model import OrthogonalMatchingPursuit
+from sklearn.linear_model import RANSACRegressor
+from sklearn.linear_model import HuberRegressor
 
 import warnings
 
@@ -80,13 +82,13 @@ def ridgepredictor(xt,yt,l,x_test):
 # PREDICTOR 3: LASSO REGRESSION
 def lassopredictor(xt,yt,l,xtest):
     #l=lambda
-    lassoreg = linear_model.Lasso(alpha=l)    
+    lassoreg = linear_model.Lasso(alpha=l)
     lassoreg.fit(xt,yt)
     return lassoreg.predict(xtest) #I checked and it is the same as calculating beta and doing y=X*beta
 
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
 def svmlinearpredictor(xt,yt,xtest):
-    regsvm = svm.LinearSVR(epsilon=0.05,random_state=0)
+    regsvm = svm.LinearSVR(epsilon=0.05,random_state=2,tol=1e-6)
     regsvm.fit(xt, yt)
     return regsvm.predict(xtest)
 
@@ -132,6 +134,13 @@ def bayesridgepredictor(xt,yt,xtest):
     bayesridge = linear_model.BayesianRidge()
     bayesridge.fit(xt, yt)
     return bayesridge.predict(xtest)
+
+# PREDICTOR 12: RANSAC REGRESSION
+def ransacpredictor(xt,yt,xtest):
+    regsvm = svm.LinearSVR(epsilon=0.05,random_state=2)
+    ransac = RANSACRegressor(base_estimator=regsvm,random_state=2)
+    ransac.fit(xt, yt)
+    return ransac.predict(xtest)
 
 # SQUARED ERRORS
 def sse(y,yt):
@@ -229,16 +238,18 @@ def cross_val(xt,yt,k,func,*args):
         y_pred = np.empty((k,fold))
         for i in range(k):
             y_pred[i,:] = bayesridgepredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
+   
+    elif func == 'ransac':
+        y_pred = np.empty((k,fold))
+        for i in range(k):
+            y_pred[i,:] = ransacpredictor(x_train[i,:,:],y_train[i,:],x_test[i,:,:]) #outcomes predicted using linear regression model
     
-    
-  
-
     # compute errors for each set
     errors = np.empty(k)
     for i in range(k):
         errors[i] = sse(y_test[i,:],y_pred[i,:])/fold
     
-    #print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
+    # print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)       
 
 def bestlasso(lassovector,xt,yt):
@@ -460,8 +471,8 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 # outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-outlierfunc = ['ee','lof','ocsvm']
-predfunc=['svmlinear','sgd']
+outlierfunc = ['ee','lof']
+predfunc=['huber']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -535,10 +546,10 @@ for outlier in outlierfunc:
 # list_result_lasso = list_result  
 # np.save('Data/list_result_lasso.npy',list_result)
 # # np.save('Data/list_result.npy',list_result)
-# # list_result = np.load('Data/list_result.npy')
 # list_result = np.load('Data/list_result.npy')
-# list_result_lasso = np.load('Data/list_result_lasso.npy')
-# np.save('Data/list_result_addyt.npy',list_result)
+# list_result_ransac = np.load('Data/list_result_ransac.npy')
+# # list_result_lasso = np.load('Data/list_result_lasso.npy')
+# np.save('Data/list_result_ransac.npy',list_result)
 #%%
 # outlierfunc=['iso','ee','lof','ocsvm','dbscan']
 list_result = np.array(list_result)
@@ -559,6 +570,16 @@ for i in range(len(list_result)):
         m=float(list_result[i,-1])
         ind=i
 print('best:',list_result[ind])
+print('\n')
+
+list_err = np.array(list_err)
+m=10
+ind=0
+for i in range(len(list_err)):
+    if float(list_err[i,-1])<m:
+        m=float(list_err[i,-1])
+        ind=i
+print('best:',list_err[ind])
 print('\n')
 
 #best iso
@@ -591,11 +612,11 @@ for i in range(len(list_result)):
             ind=i
 print(list_result[ind])
 
-#best ocsvm
+#best ransac
 m=10
 ind=0
 for i in range(len(list_result)):
-    if list_result[i,0]=='ocsvm':
+    if list_result[i,1]=='ransac' and list_result[i,0]=='lof':
         if float(list_result[i,-1])<m:
             m=float(list_result[i,-1])
             ind=i
@@ -619,13 +640,32 @@ print(list_result[ind])
 # plt.tight_layout()
 # plt.show()
 
+ran = np.linspace(0,100,101)
+list_err = []
+for i in ran:
+    for e in ran:
+        xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,0.04,'ee');xtrain=deleteyt(xtrain);cross_val(xtrain,ytrain,5,'ransac')
+        list_err.append([i,e,er])
+
+#%% BEST CASE
+xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,0.04,'ee')
+xtrain=deleteyt(xtrain)
+print('ransac',cross_val(xtrain,ytrain,5,'ransac'))
+print('svmlinear',cross_val(xtrain,ytrain,5,'svmlinear'))
+
+#%% SAVE PREDICTION
+xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2,0.04,'ee')
+xtrain = deleteyt(xtrain)
+y_pred = ransacpredictor(xtrain, ytrain, x_test_2)
+np.save('Data/YTest_Regression_Part2.npy',y_pred)
+
 #%% Plot error vs contamination in EE
 er=[]
 size=[]
 for cont in cont_v:
     xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,cont,'ee')
     xtrain = deleteyt(xtrain)
-    er+=[cross_val(xtrain, ytrain, 5, 'svmlinear')]
+    er+=[cross_val(xtrain, ytrain, 5, 'huber')]
     size+=[len(xtrain)]
 
 plt.plot(cont_v,er)
