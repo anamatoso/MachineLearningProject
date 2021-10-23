@@ -562,14 +562,14 @@ print('best:',list_result[ind])
 print('\n')
 
 #best iso
-m=10
-ind=0
-for i in range(len(list_result)):
-    if list_result[i,0]=='iso':
-        if float(list_result[i,-1])<m:
-            m=float(list_result[i,-1])
-            ind=i
-print(list_result[ind])
+# m=10
+# ind=0
+# for i in range(len(list_result)):
+#     if list_result[i,0]=='iso':
+#         if float(list_result[i,-1])<m:
+#             m=float(list_result[i,-1])
+#             ind=i
+# print(list_result[ind])
 
 #best ee
 m=10
@@ -602,14 +602,14 @@ for i in range(len(list_result)):
 print(list_result[ind])
 
 #best dbscan
-m=10
-ind=0
-for i in range(len(list_result)):
-    if list_result[i,0]=='dbscsn':
-        if float(list_result[i,-1])<m:
-            m=float(list_result[i,-1])
-            ind=i
-print(list_result[ind])
+# m=10
+# ind=0
+# for i in range(len(list_result)):
+#     if list_result[i,0]=='dbscsn':
+#         if float(list_result[i,-1])<m:
+#             m=float(list_result[i,-1])
+#             ind=i
+# print(list_result[ind])
 
 # list_result_ocsvm_svmlinear = [item for item in list_result if item[0]=='ocsvm' and item[1]=='sgd']
 # list_result_ocsvm_svmlinear = np.array(list_result_ocsvm_svmlinear)
@@ -618,6 +618,27 @@ print(list_result[ind])
 # plt.plot(list_result_ocsvm_svmlinear[:,2],list_result_ocsvm_svmlinear[:,3])
 # plt.tight_layout()
 # plt.show()
+
+#%% Plot error vs contamination in EE
+er=[]
+size=[]
+for cont in cont_v:
+    xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,cont,'ee')
+    xtrain = deleteyt(xtrain)
+    er+=[cross_val(xtrain, ytrain, 5, 'svmlinear')]
+    size+=[len(xtrain)]
+
+plt.plot(cont_v,er)
+# plt.yscale('log')
+plt.ylabel("error")
+plt.xlabel("contamination")
+plt.figure()
+plt.plot(cont_v,size)
+# plt.yscale('log')
+plt.ylabel("size of xtrain")
+plt.xlabel("contamination")
+plt.show()
+
 
 #%% TEST 
 print('Without outlier detection: ')
