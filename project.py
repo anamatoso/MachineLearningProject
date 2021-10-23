@@ -637,6 +637,7 @@ plt.plot(cont_v,size)
 # plt.yscale('log')
 plt.ylabel("size of xtrain")
 plt.xlabel("contamination")
+plt.grid()
 plt.show()
 
 
