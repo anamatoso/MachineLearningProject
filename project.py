@@ -390,7 +390,12 @@ x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
 y_train_2 = np.load(cd+'/Data/Ytrain_Regression_Part2.npy')
 x_test_2 = np.load(cd+'/Data/Xtest_Regression_Part2.npy')
 
+def addyt(xt,yt):
+    return np.append(xt,yt,axis=1)
 
+def deleteyt(xt):
+    xt = np.delete(xt,-1,axis=1)
+    return xt
 
 #with isolation forest
 def isoforest(xt,yt,cont):
@@ -455,7 +460,7 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-predfunc=['lasso']
+predfunc=['svmlinear','sgd','lr','gauss']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -464,7 +469,7 @@ lassovector = np.logspace(-6, 0, 100)
 len_nu=len(nu_v)
 len_cont=len(cont_v)
 len_eps=len(eps_v)
-
+#%%
 list_result=[]
 for outlier in outlierfunc:
     print('start',outlier)
@@ -474,7 +479,8 @@ for outlier in outlierfunc:
         if outlier=='ocsvm':
             
             for nu in nu_v:
-                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,nu,outlier)
+                xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,nu,outlier)
+                xtrain = deleteyt(xtrain)
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
@@ -490,7 +496,8 @@ for outlier in outlierfunc:
         
         elif outlier=='dbscan':
             for eps in eps_v:
-                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,eps,outlier)
+                xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,eps,outlier)
+                xtrain = deleteyt(xtrain)
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
@@ -506,7 +513,8 @@ for outlier in outlierfunc:
 
         else:  
             for cont in cont_v:
-                xtrain,ytrain=outlierremoval(x_train_2,y_train_2,cont,outlier)
+                xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,cont,outlier)
+                xtrain = deleteyt(xtrain)
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
                         error=cross_val(xtrain, ytrain, 5, pred)
@@ -519,25 +527,29 @@ for outlier in outlierfunc:
                 sys.stdout.write('\r')
                 sys.stdout.write("[%-100s] %d%%" % ('='*int(progress*100), progress*100))
                 sys.stdout.flush()  
-        print('end',pred)
+        print('\n','end',pred)
         
-    print('end',outlier)
+    print('\n','end',outlier)
 
-list_result_lasso = list_result  
-np.save('Data/list_result_lasso.npy',list_result)
-# np.save('Data/list_result.npy',list_result)
+# list_result_lasso = list_result  
+# np.save('Data/list_result_lasso.npy',list_result)
+# # np.save('Data/list_result.npy',list_result)
+# # list_result = np.load('Data/list_result.npy')
 # list_result = np.load('Data/list_result.npy')
-list_result = np.load('Data/list_result.npy')
-list_result_lasso = np.load('Data/list_result_lasso.npy')
+# list_result_lasso = np.load('Data/list_result_lasso.npy')
 #%%
+# outlierfunc=['iso','ee','lof','ocsvm','dbscan']
+
+#best lasso
 m=10
 ind=0
 for i in range(len(list_result_lasso)):
-    if float(list_result_lasso[i,-1])<m:
+    if list_result_lasso[i,0]!='ocsvm' and float(list_result_lasso[i,-1])<m:
         m=float(list_result_lasso[i,-1])
         ind=i
 print(list_result_lasso[ind])
 
+#best overall (ocsvm)
 m=10
 ind=0
 for i in range(len(list_result)):
@@ -546,14 +558,43 @@ for i in range(len(list_result)):
         ind=i
 print(list_result[ind])
 
+#best iso
 m=10
 ind=0
 for i in range(len(list_result)):
-    if list_result[i,0]!='ocsvm':
+    if list_result[i,0]=='iso':
         if float(list_result[i,-1])<m:
             m=float(list_result[i,-1])
             ind=i
 print(list_result[ind])
+
+#best ee
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i,0]=='ee':
+        if float(list_result[i,-1])<m:
+            m=float(list_result[i,-1])
+            ind=i
+print(list_result[ind])
+
+#best lof
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i,0]=='lof':
+        if float(list_result[i,-1])<m:
+            m=float(list_result[i,-1])
+            ind=i
+print(list_result[ind])
+
+list_result_ocsvm_svmlinear = [item for item in list_result if item[0]=='ocsvm' and item[1]=='sgd']
+list_result_ocsvm_svmlinear = np.array(list_result_ocsvm_svmlinear)
+plt.figure()
+# for i in range(len(list_result_ocsvm)):
+plt.plot(list_result_ocsvm_svmlinear[:,2],list_result_ocsvm_svmlinear[:,3])
+plt.tight_layout()
+plt.show()
 
 #%% TEST 
 print('Without outlier detection: ')
