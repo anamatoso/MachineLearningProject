@@ -88,7 +88,7 @@ def lassopredictor(xt,yt,l,xtest):
 
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
 def svmlinearpredictor(xt,yt,xtest):
-    regsvm = svm.LinearSVR(epsilon=0.05,random_state=2,tol=1e-6)
+    regsvm = svm.LinearSVR(epsilon=0.07,random_state=2,max_iter=100000)
     regsvm.fit(xt, yt)
     return regsvm.predict(xtest)
 
@@ -138,7 +138,7 @@ def bayesridgepredictor(xt,yt,xtest):
 # PREDICTOR 12: RANSAC REGRESSION
 def ransacpredictor(xt,yt,xtest):
     regsvm = svm.LinearSVR(epsilon=0.05,random_state=2)
-    ransac = RANSACRegressor(base_estimator=regsvm,random_state=2)
+    ransac = RANSACRegressor(base_estimator=regsvm,random_state=2,stop_n_inliers=0.1*len(xtest),max_skips=10)
     ransac.fit(xt, yt)
     return ransac.predict(xtest)
 
@@ -471,12 +471,14 @@ def outlierremoval(xt,yt,k,func):
     return xt,yt
 
 # outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-outlierfunc = ['ee','lof']
-predfunc=['huber']
+outlierfunc = ['ee']
+predfunc=['svmlinear']
+
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
 lassovector = np.logspace(-6, 0, 100)
+eps_v=np.linspace(0.01,1,1000)
 
 len_nu=len(nu_v)
 len_cont=len(cont_v)
@@ -524,16 +526,16 @@ for outlier in outlierfunc:
                 sys.stdout.flush()  
 
         else:  
-            for cont in cont_v:
-                xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,cont,outlier)
+            for epsilon in eps_v:
+                xtrain,ytrain=outlierremoval(addyt(x_train_2,y_train_2),y_train_2,0.04,outlier)
                 xtrain = deleteyt(xtrain)
                 if len(xtrain)>=90:
                     if not (pred=='lasso'):
-                        error=cross_val(xtrain, ytrain, 5, pred)
-                        list_result.append([outlier,pred,cont,error])
+                        error=cross_val(xtrain, ytrain, 5, pred,epsilon)
+                        list_result.append([outlier,pred,epsilon,error])
                     else:
                         error=cross_val(xtrain, ytrain, 5, pred, bestlasso(lassovector,xtrain,ytrain))
-                        list_result.append([outlier,pred,cont,error])
+                        list_result.append([outlier,pred,0.04,error])
                 progress=i/len_nu
                 i+=1
                 sys.stdout.write('\r')
@@ -656,8 +658,8 @@ print('svmlinear',cross_val(xtrain,ytrain,5,'svmlinear'))
 #%% SAVE PREDICTION
 xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2,0.04,'ee')
 xtrain = deleteyt(xtrain)
-y_pred = ransacpredictor(xtrain, ytrain, x_test_2)
-np.save('Data/YTest_Regression_Part2.npy',y_pred)
+y_pred = svmlinearpredictor(xtrain, ytrain, x_test_2)
+np.save('Data/YPred_Regression_Part2.npy',y_pred)
 
 #%% Plot error vs contamination in EE
 er=[]
