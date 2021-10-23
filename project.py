@@ -86,7 +86,7 @@ def lassopredictor(xt,yt,l,xtest):
 
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
 def svmlinearpredictor(xt,yt,xtest):
-    regsvm = svm.LinearSVR(epsilon=0.05)
+    regsvm = svm.LinearSVR(epsilon=0.05,random_state=0)
     regsvm.fit(xt, yt)
     return regsvm.predict(xtest)
 
@@ -399,7 +399,7 @@ def deleteyt(xt):
 
 #with isolation forest
 def isoforest(xt,yt,cont):
-    iso = IsolationForest(contamination=cont)
+    iso = IsolationForest(contamination=cont,random_state=0)
     mask = iso.fit_predict(xt)
     isin = mask != -1
     x_train_2_iso, y_train_2_iso = xt[isin, :], yt[isin]
@@ -407,7 +407,7 @@ def isoforest(xt,yt,cont):
 
 #with Minimum Covariance Determinant
 def ellienv(xt,yt,cont):
-    iso = EllipticEnvelope(contamination=cont)
+    iso = EllipticEnvelope(contamination=cont,random_state=0)
     mask = iso.fit_predict(xt)
     isin = mask != -1
     x_train_2_ee, y_train_2_ee = xt[isin, :], yt[isin]
@@ -459,8 +459,9 @@ def outlierremoval(xt,yt,k,func):
         
     return xt,yt
 
-outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-predfunc=['svmlinear','sgd','lr','gauss']
+# outlierfunc=['iso','ee','lof','ocsvm','dbscan']
+outlierfunc = ['ee','lof','ocsvm']
+predfunc=['svmlinear','sgd']
 cont_v=np.linspace(0.0001,0.1,1000)
 nu_v = np.linspace(0.01,1,1000)
 eps_v = np.linspace(3,5,1001)
@@ -537,26 +538,28 @@ for outlier in outlierfunc:
 # # list_result = np.load('Data/list_result.npy')
 # list_result = np.load('Data/list_result.npy')
 # list_result_lasso = np.load('Data/list_result_lasso.npy')
+# np.save('Data/list_result_addyt.npy',list_result)
 #%%
 # outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-
+list_result = np.array(list_result)
 #best lasso
-m=10
-ind=0
-for i in range(len(list_result_lasso)):
-    if list_result_lasso[i,0]!='ocsvm' and float(list_result_lasso[i,-1])<m:
-        m=float(list_result_lasso[i,-1])
-        ind=i
-print(list_result_lasso[ind])
+# m=10
+# ind=0
+# for i in range(len(list_result_lasso)):
+#     if list_result_lasso[i,0]!='ocsvm' and float(list_result_lasso[i,-1])<m:
+#         m=float(list_result_lasso[i,-1])
+#         ind=i
+# print(list_result_lasso[ind])
 
-#best overall (ocsvm)
+#best overall 
 m=10
 ind=0
 for i in range(len(list_result)):
     if float(list_result[i,-1])<m:
         m=float(list_result[i,-1])
         ind=i
-print(list_result[ind])
+print('best:',list_result[ind])
+print('\n')
 
 #best iso
 m=10
@@ -588,13 +591,33 @@ for i in range(len(list_result)):
             ind=i
 print(list_result[ind])
 
-list_result_ocsvm_svmlinear = [item for item in list_result if item[0]=='ocsvm' and item[1]=='sgd']
-list_result_ocsvm_svmlinear = np.array(list_result_ocsvm_svmlinear)
-plt.figure()
-# for i in range(len(list_result_ocsvm)):
-plt.plot(list_result_ocsvm_svmlinear[:,2],list_result_ocsvm_svmlinear[:,3])
-plt.tight_layout()
-plt.show()
+#best ocsvm
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i,0]=='ocsvm':
+        if float(list_result[i,-1])<m:
+            m=float(list_result[i,-1])
+            ind=i
+print(list_result[ind])
+
+#best dbscan
+m=10
+ind=0
+for i in range(len(list_result)):
+    if list_result[i,0]=='dbscsn':
+        if float(list_result[i,-1])<m:
+            m=float(list_result[i,-1])
+            ind=i
+print(list_result[ind])
+
+# list_result_ocsvm_svmlinear = [item for item in list_result if item[0]=='ocsvm' and item[1]=='sgd']
+# list_result_ocsvm_svmlinear = np.array(list_result_ocsvm_svmlinear)
+# plt.figure()
+# # for i in range(len(list_result_ocsvm)):
+# plt.plot(list_result_ocsvm_svmlinear[:,2],list_result_ocsvm_svmlinear[:,3])
+# plt.tight_layout()
+# plt.show()
 
 #%% TEST 
 print('Without outlier detection: ')
