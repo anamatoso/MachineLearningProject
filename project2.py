@@ -25,19 +25,7 @@ x_test_1 = np.load(cd+'/Data/Xtest_Classification_Part1.npy')
 del cd
 
 #%% VISUALIZE DATA
-# for i in range(len(x_train_1)-50):
-#     plt.imshow(x_train_1[i:i+50,i:i+50], interpolation='nearest') # 50x50 pixels
-#     plt.show()
-    
-# del i 
-# for data in x_train_1:
-data = x_train_1[0]
 
+data = x_train_1[1030]
 data_forimage = np.reshape(data,(50,50))
-print(np.shape(data_forimage))
-# for i in range(0,len(data),50):
-#     data_forimage.append(data[i:i+50])
-# data_forimage = np.array(data_forimage)
-img = Image.fromarray(data_forimage,'L')
-img.save('my.png')
-img.show(img)
+plt.imshow(data_forimage,cmap='gray', vmin=0, vmax=255)
