@@ -16,7 +16,7 @@ cd = os.getcwd()
 x_train_1 = np.load(cd+'/Data/Xtrain_Classification_Part1.npy')
 y_train_1 = np.load(cd+'/Data/Ytrain_Classification_Part1.npy')
 x_test_1 = np.load(cd+'/Data/Xtest_Classification_Part1.npy')
-
+#gogog
 # Part 2
 # x_train_2 = np.load(cd+'/Data/Xtrain_Classification_Part2.npy')
 # y_train_2 = np.load(cd+'/Data/Ytrain_Classification_Part2.npy')
