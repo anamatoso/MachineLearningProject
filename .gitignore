@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .DS_Store
+Data/Xtrain_Classification_Part2.npy
+Data/Xtrain_Classification_Part1.npy
