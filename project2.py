@@ -38,6 +38,17 @@ y_train_1=ytrain
 
 del cd
 
+def accuracy(y1,y2):
+    a=0
+    if len(y1)!=len(y2):
+        return print("The sizes are different")
+    else:
+        for i in range(len(y1)):
+            if np.all(y1[i]==y2[i]):
+                a+=1
+                
+        return a/len(y1)
+
 #%% VISUALIZE DATA
 
 data = x_train_1[87]
@@ -87,7 +98,16 @@ history=model.fit(xtrainreshape[0:5210], y_train_1[0:5210],batch_size=batch_size
 print(history)
 
 predictions = model.predict(xtrainreshape[5210:])
-print(predictions)
+
+for i in range(len(predictions)):
+    if predictions[i][0]>=0.5:
+        predictions[i]=[1,0]
+    else:
+        predictions[i]=[0,1]
 
 
+
+print(len(predictions))
+
+print(accuracy(predictions,y_train_1[5210:]))
 
