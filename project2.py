@@ -22,8 +22,15 @@ x_test_1 = np.load(cd+'/Data/Xtest_Classification_Part1.npy')
 xtrainreshape = np.reshape(x_train_1,(6513,50,50))
 xtestreshape = np.reshape(x_test_1,(1134,50,50))
 
+ytrain=[]
+for i in range(len(y_train_1)):
+    if y_train_1[i]==1:
+        ytrain.append([1,0])
+    else:
+        ytrain.append([0,1])
 
-
+ytrain=np.array(ytrain)
+y_train_1=ytrain
 # Part 2
 # x_train_2 = np.load(cd+'/Data/Xtrain_Classification_Part2.npy')
 # y_train_2 = np.load(cd+'/Data/Ytrain_Classification_Part2.npy')
@@ -50,13 +57,13 @@ x = Rescaling(scale=1.0 / 255)(x)
 # Apply some convolution and pooling layers
 x = layers.Conv2D(filters=16, kernel_size=(2, 2), activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(2, 2))(x)
-x = layers.Conv2D(filters=16, kernel_size=(2, 2), activation="relu")(x)
+x = layers.Conv2D(filters=8, kernel_size=(2, 2), activation="relu")(x)
 x = layers.MaxPooling2D(pool_size=(2, 2))(x)
-x = layers.Conv2D(filters=16, kernel_size=(2, 2), activation="relu")(x)
+x = layers.Conv2D(filters=2, kernel_size=(2, 2), activation="relu")(x)
 
 # Apply global average pooling to get flat feature vectors
 x = layers.GlobalAveragePooling2D()(x)
-x = layers.Flatten()(x)
+
 # Add a dense classifier on top
 num_classes = 2
 outputs = layers.Dense(num_classes, activation="softmax")(x)
