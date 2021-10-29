@@ -105,6 +105,7 @@ def gausspredictor(xt,yt,xtest):
     gauss.fit(xt, yt)
     return gauss.predict(xtest)
 
+#Part2
 # PREDICTOR 7: ELASTIC NET
 def enpredictor(xt,yt,xtest):
     en = ElasticNet(random_state=0)
@@ -276,12 +277,12 @@ for i in range(len(l)):
 np.save('Data/cv_ridge_k5_10000.npy',cv_ridge_k5)
 np.save('Data/cv_lasso_k5_10000.npy',cv_lasso_k5)
 
-#%%
+#%% Plot and save error vs lambda for ridge and lasso
 
 l=np.logspace(-6, -3, 10000)
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')   
-cv_ridge_k5=np.load('Data/cv_ridge_k5_10000.npy')
-cv_lasso_k5=np.load('Data/cv_lasso_k5_10000.npy')
+cv_ridge_k5=np.load('Data/Other/cv_ridge_k5_10000.npy')
+cv_lasso_k5=np.load('Data/Other/cv_lasso_k5_10000.npy')
 l_lasso=l[np.where(cv_lasso_k5==np.min(cv_lasso_k5))[0][0]]
 l_ridge=l[np.where(cv_ridge_k5==np.min(cv_ridge_k5))[0][0]]
 
@@ -291,7 +292,7 @@ plt.scatter(l_ridge,np.min(cv_ridge_k5),marker='x',color='k',zorder=3)
 plt.plot(l,cv_ridge_k5,label='Ridge')
 plt.plot(l,cv_lasso_k5,label='Lasso')
 plt.axhline(y=cv_lr_k5, color='darkgray', linestyle='--') #5-fold cross val using linear regression
-plt.title('Evolution of \u03B2 values in Ridge and Lasso Regression')
+plt.title('Evolution of MSE values in Ridge and Lasso Regression')
 plt.xlabel('\u03BB')
 plt.ylabel('Error')
 plt.xlim((1e-6, 1e-3))
@@ -300,8 +301,7 @@ plt.savefig('comparelambdaserror.eps', format="eps")
 
 del l
 
-#%% TEST FUNCTION
-# Compute erros with chosen lambda values
+#%% TEST FUNCTION - Compute erros with chosen lambda values
 
 cv_lr_k5 = cross_val(x_train_1,y_train_1,5,'lr')    
 cv_lr_k10 = cross_val(x_train_1,y_train_1,10,'lr')    
@@ -336,6 +336,8 @@ plt.ylim((0.015,0.021))
 plt.yticks(np.linspace(0.015, 0.021,7))
 plt.legend(loc='best')
 plt.savefig('comparepredictorserror.eps', format="eps")
+print(k5)
+print(k10)
 
 del width, ind, k5, k10
 
@@ -346,7 +348,7 @@ np.save('Data/YTest_Regression_Part1.npy',y_pred)
 #%% COMPARE BETAS
 # for the different lambda values, study the corresponding beta parameters
 
-lambdas=np.logspace(-6, 3, 10000)
+lambdas=np.logspace(-6, -3, 10000)
 lambdasridge=np.logspace(-6, 6, 10000)
 
 beta_lr=np.empty((21,len(lambdas)))
@@ -379,9 +381,9 @@ for i in range(21):
 plt.grid(linestyle='--', linewidth=0.5)
 
 
-plt.savefig('lambdalasso.eps', format="eps")
+#plt.savefig('lambdalasso.eps', format="eps")
 
-del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
+#del i,lambdas,lassoreg,beta_ridge,beta_lr, beta_lasso
 
 
 
