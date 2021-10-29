@@ -54,7 +54,9 @@ data = x_train_1[87]
 data_forimage = np.reshape(data,(50,50))
 plt.imshow(data_forimage,cmap='gray', vmin=0, vmax=255)
 
-
+def imshow(img):
+    img = img.reshape(50,50)
+    plt.imshow(img,cmap='gray')
 
 #%% Create Layers
 
