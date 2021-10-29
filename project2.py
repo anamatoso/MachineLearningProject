@@ -28,6 +28,8 @@ x_test_1 = np.load(cd+'/Data/Xtest_Classification_Part1.npy')
 
 # turn y train into categorical data
 y_train_1 = np_utils.to_categorical(y_train_1, 2)
+
+
 # Part 2
 # x_train_2 = np.load(cd+'/Data/Xtrain_Classification_Part2.npy')
 # y_train_2 = np.load(cd+'/Data/Ytrain_Classification_Part2.npy')
@@ -100,11 +102,13 @@ batch_size=32
 # dataset = tf.data.Dataset.from_tensor_slices((xtrainreshape[0:5210], y_train_1[0:5210])).batch(batch_size)
 
 # history=model.fit(dataset, epochs=1, validation_data=val_dataset)
-history=model.fit(x_train_1[0:5210], y_train_1[0:5210],batch_size=batch_size, epochs=10, validation_data=(x_train_1[5210:], y_train_1[5210:]))
+history=model.fit(x_train_1[0:5210], y_train_1[0:5210],batch_size=batch_size, epochs=40, validation_data=(x_train_1[5210:], y_train_1[5210:]))
 # print(history)
 
 predictions = model.predict(x_train_1[5210:])
-print(predictions)
+
+#CONVERTER PREDICTIONS EM VETOR DE ESCALARES 0 E 1
+
 for i in range(len(predictions)):
     if predictions[i][0]>=0.5:
         predictions[i]=[1,0]
