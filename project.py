@@ -551,9 +551,12 @@ outlierfunc = ['iso', 'ee', 'lof', 'ocsvm', 'dbscan']
 predfunc = ['lr', 'lasso', 'svmlinear', 'sgd', 'gauss','en', 'lars', 'larslasso', 'omp', 'bayesridge', 'ransac']
 
 cont_v = np.linspace(0.0001, 0.1, 1000); len_cont = len(cont_v)
-nu_v = np.linspace(0.01, 1, 1000); len_nu = len(nu_v)
+nu_v = np.linspace(0.01, 1, 1000) 
+len_nu = len(nu_v)
 lassovector = np.logspace(-6, 0, 100)
-eps_v = np.linspace(0.01, 1, 1000); len_eps = len(eps_v)
+eps_v = np.linspace(0.01, 1, 1000)
+len_eps = len(eps_v)
+
 #%% Compare all predictors and outlier detectors (DON'T RUN)
 
 list_result = []
