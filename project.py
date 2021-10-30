@@ -274,8 +274,8 @@ for i in range(len(l)):
     cv_ridge_k5 = cv_ridge_k5 + [cross_val(x_train_1,y_train_1,5,'ridge',l[i])]  
     cv_lasso_k5 = cv_lasso_k5 + [cross_val(x_train_1,y_train_1,5,'lasso',l[i])]
     # print('\n')
-np.save('Data/cv_ridge_k5_10000.npy',cv_ridge_k5)
-np.save('Data/cv_lasso_k5_10000.npy',cv_lasso_k5)
+np.save('Data/Other/cv_ridge_k5_10000.npy',cv_ridge_k5)
+np.save('Data/Other/cv_lasso_k5_10000.npy',cv_lasso_k5)
 
 #%% Plot and save error vs lambda for ridge and lasso
 
