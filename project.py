@@ -462,7 +462,7 @@ plt.grid(linestyle='--', linewidth=0.5)
 
 
 # %% PART 2
-# %% OUTLIER DETECTION AND REMOVAL
+# %% Outlier Detection And Removal
 
 
 cd = os.getcwd()
@@ -544,21 +544,18 @@ def outlierremoval(xt, yt, k, func):
     return xt, yt
 
 
+
+# %% Selecting all predictors and all outlier detectors to compare
+
 outlierfunc = ['iso', 'ee', 'lof', 'ocsvm', 'dbscan']
-#outlierfunc = ['ee']
 predfunc = ['lr', 'lasso', 'svmlinear', 'sgd', 'gauss','en', 'lars', 'larslasso', 'omp', 'bayesridge', 'ransac']
 
-
-cont_v = np.linspace(0.0001, 0.1, 1000)
-nu_v = np.linspace(0.01, 1, 1000)
-eps_v = np.linspace(3, 5, 1001)
+cont_v = np.linspace(0.0001, 0.1, 1000); len_cont = len(cont_v)
+nu_v = np.linspace(0.01, 1, 1000); len_nu = len(nu_v)
 lassovector = np.logspace(-6, 0, 100)
-eps_v = np.linspace(0.01, 1, 1000)
+eps_v = np.linspace(0.01, 1, 1000); len_eps = len(eps_v)
+#%% Compare all predictors and outlier detectors (DON'T RUN)
 
-len_nu = len(nu_v)
-len_cont = len(cont_v)
-len_eps = len(eps_v)
-# %%
 list_result = []
 for outlier in outlierfunc:
     print('start', outlier)
@@ -630,43 +627,21 @@ for outlier in outlierfunc:
 
     print('\n', 'end', outlier)
 
-# list_result_lasso = list_result
-# np.save('Data/list_result_lasso.npy',list_result)
-# # np.save('Data/list_result.npy',list_result)
-# list_result = np.load('Data/list_result.npy')
-# list_result_ransac = np.load('Data/list_result_ransac.npy')
-# # list_result_lasso = np.load('Data/list_result_lasso.npy')
-# np.save('Data/list_result_ransac.npy',list_result)
-# %%
-# outlierfunc=['iso','ee','lof','ocsvm','dbscan']
-list_result = np.array(list_result)
-# best lasso
-# m=10
-# ind=0
-# for i in range(len(list_result_lasso)):
-#     if list_result_lasso[i,0]!='ocsvm' and float(list_result_lasso[i,-1])<m:
-#         m=float(list_result_lasso[i,-1])
-#         ind=i
-# print(list_result_lasso[ind])
+
+np.save('Data/Other/list_allresults.npy',list_result)
+
+# %% See best result
+
+list_result = np.load('Data/Other/list_allresults.npy')
 
 # best overall
 m = 10
 ind = 0
 for i in range(len(list_result)):
-    if float(list_result[i, -1]) < m:
-        m = float(list_result[i, -1])
+    if float(list_result[i][-1]) < m:
+        m = float(list_result[i][-1])
         ind = i
 print('best:', list_result[ind])
-print('\n')
-
-list_err = np.array(list_err)
-m = 10
-ind = 0
-for i in range(len(list_err)):
-    if float(list_err[i, -1]) < m:
-        m = float(list_err[i, -1])
-        ind = i
-print('best:', list_err[ind])
 print('\n')
 
 # best iso
@@ -679,77 +654,19 @@ print('\n')
 #             ind=i
 # print(list_result[ind])
 
-# best ee
-m = 10
-ind = 0
-for i in range(len(list_result)):
-    if list_result[i, 0] == 'ee':
-        if float(list_result[i, -1]) < m:
-            m = float(list_result[i, -1])
-            ind = i
-print(list_result[ind])
 
-# best lof
-m = 10
-ind = 0
-for i in range(len(list_result)):
-    if list_result[i, 0] == 'lof':
-        if float(list_result[i, -1]) < m:
-            m = float(list_result[i, -1])
-            ind = i
-print(list_result[ind])
-
-# best ransac
-m = 10
-ind = 0
-for i in range(len(list_result)):
-    if list_result[i, 1] == 'ransac' and list_result[i, 0] == 'lof':
-        if float(list_result[i, -1]) < m:
-            m = float(list_result[i, -1])
-            ind = i
-print(list_result[ind])
-
-# best dbscan
-# m=10
-# ind=0
-# for i in range(len(list_result)):
-#     if list_result[i,0]=='dbscsn':
-#         if float(list_result[i,-1])<m:
-#             m=float(list_result[i,-1])
-#             ind=i
-# print(list_result[ind])
-
-# list_result_ocsvm_svmlinear = [item for item in list_result if item[0]=='ocsvm' and item[1]=='sgd']
-# list_result_ocsvm_svmlinear = np.array(list_result_ocsvm_svmlinear)
-# plt.figure()
-# # for i in range(len(list_result_ocsvm)):
-# plt.plot(list_result_ocsvm_svmlinear[:,2],list_result_ocsvm_svmlinear[:,3])
-# plt.tight_layout()
-# plt.show()
-
-ran = np.linspace(0, 100, 101)
-list_err = []
-for i in ran:
-    for e in ran:
-        xtrain, ytrain = outlierremoval(
-            addyt(x_train_2, y_train_2), y_train_2, 0.04, 'ee')
-        xtrain = deleteyt(xtrain)
-        cross_val(xtrain, ytrain, 5, 'ransac')
-        list_err.append([i, e, er])
-
-# %% BEST CASE
-xtrain, ytrain = outlierremoval(
-    addyt(x_train_2, y_train_2), y_train_2, 0.04, 'ee')
+# %% Best case
+xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2, 0.0304, 'ee')
 xtrain = deleteyt(xtrain)
-print('ransac', cross_val(xtrain, ytrain, 5, 'ransac'))
-print('svmlinear', cross_val(xtrain, ytrain, 5, 'svmlinear'))
 
-# %% SAVE PREDICTION
-xtrain, ytrain = outlierremoval(
-    addyt(x_train_2, y_train_2), y_train_2, 0.04, 'ee')
-xtrain = deleteyt(xtrain)
+print('Error in best case: ', cross_val(xtrain, ytrain, 5, 'svmlinear'))
+
+# %% Save prediction
+
 y_pred = svmlinearpredictor(xtrain, ytrain, x_test_2)
 np.save('Data/YPred_Regression_Part2.npy', y_pred)
+
+#####################################           PAREI DE LIMPAR AQUI      ######################################
 
 # %% Plot error vs contamination in EE
 er = []
