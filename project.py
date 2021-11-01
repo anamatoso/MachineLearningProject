@@ -17,6 +17,8 @@ from sklearn.linear_model import ElasticNet
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from sklearn.linear_model import RANSACRegressor
 from sklearn.linear_model import HuberRegressor
+from matplotlib.patches import Rectangle
+
 
 import warnings
 
@@ -672,6 +674,7 @@ plt.yticks(np.logspace(-2, 0, 11))
 plt.xlabel("Contamination")
 plt.title("Error using Minimum Covariance Determinant with some predictors")
 plt.legend()
+plt.gca().add_patch(Rectangle((0.017,0.011),0.025,0.01,linewidth=1,edgecolor='b',facecolor='none'))
 plt.grid()
 plt.savefig('ee_errovscont.eps', format="eps")
 plt.show()
@@ -709,6 +712,7 @@ plt.yticks(np.logspace(-2, 1, 11))
 
 plt.xlabel("Contamination")
 plt.title("Error using Local Outlier Factor with some predictors")
+plt.gca().add_patch(Rectangle((0.057,0.012),0.045,0.015,linewidth=1,edgecolor='b',facecolor='none'))
 plt.legend()
 plt.grid()
 plt.savefig('lof_errovscont.eps', format="eps")
@@ -752,6 +756,38 @@ plt.grid()
 plt.savefig('ee_zoom_errovscont.eps', format="eps")
 plt.show()
 
+#%% Plot ocsvm:error as a function of nu
+# 
+def geterror_ocsvm(predictor):
+    result=[]
+    nu_v=[]
+    for i in range(len(list_result)):
+        if ((list_result[i,0]=="ocsvm") & (list_result[i,1]==predictor)):
+            result.append(float(list_result[i,3]))
+            nu_v.append(float(list_result[i,2]))
+    return nu_v,result
+
+plt.figure()
+x,y=geterror_ocsvm("svmlinear")
+plt.plot(x,y, label="svmlinear");print(np.min(y))
+x,y=geterror_ocsvm("sgd")
+plt.plot(x,y, label="sgd");print(np.min(y))
+x,y=geterror_ocsvm("lasso")
+plt.plot(x,y, label="lasso");print(np.min(y))
+x,y=geterror_ocsvm("gauss")
+plt.plot(x,y, label="gauss");print(np.min(y))
+x,y=geterror_ocsvm("ransac")
+plt.plot(x,y, label="ransac");print(np.min(y))
+del x,y
+plt.ylabel("Error")
+plt.gca().annotate("≈0.016", xy=(0.05, 0), xytext=(0.063, 0.1), arrowprops=dict(facecolor='black', shrink=0.05))
+plt.xlabel("nu")
+plt.title("Error using One Class SVM with some predictors")
+# plt.xticks(np.linspace(0.02, 0.04, 5))
+plt.legend()
+plt.grid()
+plt.savefig('ocsvm_errovscont.eps', format="eps")
+plt.show()
 
 # %% Best case
 xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2, 0.0304, 'ee')
