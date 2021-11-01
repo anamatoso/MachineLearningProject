@@ -647,16 +647,107 @@ for i in range(len(list_result)):
 print('best:', list_result[ind])
 print('\n')
 
-# best iso
-# m=10
-# ind=0
-# for i in range(len(list_result)):
-#     if list_result[i,0]=='iso':
-#         if float(list_result[i,-1])<m:
-#             m=float(list_result[i,-1])
-#             ind=i
-# print(list_result[ind])
+# Evolution EE vs contamination values
 
+def geterror(outlier,predictor):
+    result=[]
+    for i in range(len(list_result)):
+        if ((list_result[i,0]==outlier) & (list_result[i,1]==predictor)):
+            result.append(float(list_result[i,3]))
+    return result
+   
+#%% Plot evolution of error vs contamination for each outlier         
+
+# MINIMUM COVARIANCE DETERMINANT
+plt.figure()
+plt.plot(cont_v, geterror("ee","svmlinear"), label="svmlinear")
+plt.plot(cont_v, geterror("ee","sgd"), label="sgd")
+plt.plot(cont_v, geterror("ee","lasso"), label="lasso")
+plt.plot(cont_v, geterror("ee","gauss"), label="gauss")
+plt.plot(cont_v, geterror("ee","ransac"), label="ransac")
+
+plt.ylabel("Error")
+plt.yscale("log")
+plt.yticks(np.logspace(-2, 0, 11))
+plt.xlabel("Contamination")
+plt.title("Error using Minimum Covariance Determinant with some predictors")
+plt.legend()
+plt.grid()
+plt.show()
+plt.savefig('ee_errovscont.eps', format="eps")
+
+# ISOLATION FOREST
+plt.figure()
+plt.plot(cont_v, geterror("iso","svmlinear"), label="svmlinear")
+plt.plot(cont_v, geterror("iso","sgd"), label="sgd")
+plt.plot(cont_v, geterror("iso","lasso"), label="lasso")
+plt.plot(cont_v, geterror("iso","gauss"), label="gauss")
+plt.plot(cont_v, geterror("iso","ransac"), label="ransac")
+
+plt.ylabel("Error")
+#plt.yscale("log")
+plt.xlabel("Contamination")
+plt.title("Error using Isolation Forest with some predictors")
+plt.legend()
+plt.grid()
+plt.show()
+plt.savefig('iso_errovscont.eps', format="eps")
+
+
+# LOCAL OUTLIER FACTOR
+plt.figure()
+plt.plot(cont_v, geterror("lof","svmlinear"), label="svmlinear")
+plt.plot(cont_v, geterror("lof","sgd"), label="sgd")
+plt.plot(cont_v, geterror("lof","lasso"), label="lasso")
+plt.plot(cont_v, geterror("lof","gauss"), label="gauss")
+plt.plot(cont_v, geterror("lof","ransac"), label="ransac")
+
+plt.ylabel("Error")
+plt.yscale("log")
+plt.yticks(np.logspace(-2, 1, 11))
+
+plt.xlabel("Contamination")
+plt.title("Error using Local Outlier Factor with some predictors")
+plt.legend()
+plt.grid()
+plt.show()
+plt.savefig('lof_errovscont.eps', format="eps")
+
+# DBSCAN - All straight lines
+#OCSVM-not 1000points
+
+# LOCAL OUTLIER FACTOR-Zoom
+plt.figure()
+plt.plot(cont_v[610:], geterror("lof","svmlinear")[610:], label="svmlinear")
+plt.plot(cont_v[610:], geterror("lof","sgd")[610:], label="sgd")
+plt.plot(cont_v[610:], geterror("lof","lasso")[610:], label="lasso")
+plt.plot(cont_v[610:], geterror("lof","gauss")[610:], label="gauss")
+plt.plot(cont_v[610:], geterror("lof","ransac")[610:], label="ransac")
+
+plt.ylabel("Error")
+plt.xlabel("Contamination")
+plt.title("Zoom in on Error using Local Outlier Factor with some predictors")
+plt.legend()
+plt.grid()
+plt.show()
+plt.savefig('lof_zoom_errovscont.eps', format="eps")
+
+# MINIMUM COVARIANCE DETERMINANT-Zoom
+plt.figure()
+plt.plot(cont_v[199:399], geterror("ee","svmlinear")[199:399], label="svmlinear")
+plt.plot(cont_v[199:399], geterror("ee","sgd")[199:399], label="sgd")
+plt.plot(cont_v[199:399], geterror("ee","lasso")[199:399], label="lasso")
+plt.plot(cont_v[199:399], geterror("ee","gauss")[199:399], label="gauss")
+plt.plot(cont_v[199:399], geterror("ee","ransac")[199:399], label="ransac")
+
+plt.ylabel("Error")
+plt.xlabel("Contamination")
+plt.title("Error using Minimum Covariance Determinant with some predictors")
+plt.xticks(np.linspace(0.02, 0.04, 5))
+plt.legend()
+plt.grid()
+plt.show()
+plt.savefig('ee_zoom_errovscont.eps', format="eps")
 
 # %% Best case
 xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2, 0.0304, 'ee')
