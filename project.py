@@ -673,8 +673,8 @@ plt.xlabel("Contamination")
 plt.title("Error using Minimum Covariance Determinant with some predictors")
 plt.legend()
 plt.grid()
-plt.show()
 plt.savefig('ee_errovscont.eps', format="eps")
+plt.show()
 
 # ISOLATION FOREST
 plt.figure()
@@ -690,8 +690,9 @@ plt.xlabel("Contamination")
 plt.title("Error using Isolation Forest with some predictors")
 plt.legend()
 plt.grid()
-plt.show()
 plt.savefig('iso_errovscont.eps', format="eps")
+plt.show()
+
 
 
 # LOCAL OUTLIER FACTOR
@@ -710,8 +711,9 @@ plt.xlabel("Contamination")
 plt.title("Error using Local Outlier Factor with some predictors")
 plt.legend()
 plt.grid()
-plt.show()
 plt.savefig('lof_errovscont.eps', format="eps")
+plt.show()
+
 
 # DBSCAN - All straight lines
 #OCSVM-not 1000points
@@ -729,8 +731,9 @@ plt.xlabel("Contamination")
 plt.title("Zoom in on Error using Local Outlier Factor with some predictors")
 plt.legend()
 plt.grid()
-plt.show()
 plt.savefig('lof_zoom_errovscont.eps', format="eps")
+plt.show()
+
 
 # MINIMUM COVARIANCE DETERMINANT-Zoom
 plt.figure()
@@ -746,8 +749,9 @@ plt.title("Error using Minimum Covariance Determinant with some predictors")
 plt.xticks(np.linspace(0.02, 0.04, 5))
 plt.legend()
 plt.grid()
-plt.show()
 plt.savefig('ee_zoom_errovscont.eps', format="eps")
+plt.show()
+
 
 # %% Best case
 xtrain, ytrain = outlierremoval(addyt(x_train_2, y_train_2), y_train_2, 0.0304, 'ee')
