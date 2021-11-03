@@ -88,19 +88,12 @@ model = keras.Model(inputs=inputs, outputs=outputs)
 
 #%%
 model.compile(optimizer='adam', metrics=['accuracy'],loss='categorical_crossentropy')
-# model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
-# model.compile(optimizer='adam',
-              # loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              # metrics=['accuracy'])
 
 batch_size=32
 
-# val_dataset = tf.data.Dataset.from_tensor_slices((xtrainreshape[5210:], y_train_1[5210:])).batch(batch_size)
-# dataset = tf.data.Dataset.from_tensor_slices((xtrainreshape[0:5210], y_train_1[0:5210])).batch(batch_size)
+
 callback=tf.keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=5, restore_best_weights=True)
-# history=model.fit(dataset, epochs=1, validation_data=val_dataset)
 history=model.fit(xtrainreshape[0:division], y_train_1[0:division],batch_size=batch_size, epochs=40, validation_data=(xtrainreshape[division:], y_train_1[division:]),callbacks=[callback])
-# print(history)
 
 predictions = model.predict(xtrainreshape[5210:])
 
