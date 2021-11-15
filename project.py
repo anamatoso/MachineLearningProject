@@ -1,4 +1,4 @@
-# %% Import Libraries
+#%% IMPORT LIBRARIES
 import sys
 from sklearn.cluster import DBSCAN
 from sklearn.svm import OneClassSVM
@@ -34,27 +34,6 @@ x_test_1 = np.load(cd+'/Data/Xtest_Regression_Part1.npy')
 
 del cd
 
-# %%Plot each feature vs outcome
-# for i in range(20):
-#     x=x_train_1[:,i]
-#     plt.figure()
-#     plt.scatter(x,y_train_1)
-#     plt.title("feature " +str(i)+" vs y")
-
-# %% Plot each feature vs feature-check dependencies
-
-# for i in range(20):
-#     for j in range(i):
-#         if i!=j:
-#             x1=x_train_1[:,i]
-#             x2=x_train_1[:,j]
-#             plt.figure()
-#             plt.scatter(x1,x2)
-#             plt.title("feature " +str(i)+" vs feature " +str(j))
-
-# The features seem independent
-
-
 # %% PREDICTORS EVALUATION
 
 # PREDICTOR 1: LINEAR REGRESSION
@@ -66,19 +45,15 @@ def lr_par(xt, yt):
     # use normal equation to determine beta parameters
     return np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans, X)), Xtrans), yt)
 
-
 def lr(beta, xt):
     # using the test set xt and the determined beta parameters, predict y
     X = np.append(np.ones((len(xt), 1)), xt, axis=1)
     return np.matmul(X, beta)
 
-
 def lrpredictor(xt, yt, x_test):  # predicts y based on training with xt and yt
     return lr(lr_par(xt, yt), x_test)
 
 # PREDICTOR 2: RIDGE REGRESSION
-
-
 def ridge_par(xt, yt, l):
     # determine beta parameters for ridge regression using training sets xt and yt with lambda l
     # lambda corresponds to a small number, >0, that minimizes the sse
@@ -87,7 +62,6 @@ def ridge_par(xt, yt, l):
     return np.matmul(np.matmul(np.linalg.inv(np.matmul(Xtrans, X)+l*np.identity(len(xt[0])+1)), Xtrans), yt)
 
 # using the beta parameters determined with ridge regression, the y are predicted using the lr function
-
 
 def ridgepredictor(xt, yt, l, x_test):
     return lr(ridge_par(xt, yt, l), x_test)
@@ -102,16 +76,12 @@ def lassopredictor(xt, yt, l, xtest):
     return lassoreg.predict(xtest)
 
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
-
-
 def svmlinearpredictor(xt, yt, xtest):
     regsvm = svm.LinearSVR(epsilon=0.07, random_state=2, max_iter=100000)
     regsvm.fit(xt, yt)
     return regsvm.predict(xtest)
 
 # PREDICTOR 5: SGD
-
-
 def sgdpredictor(xt, yt, xtest):
     sgd = SGDRegressor(
         random_state=0, loss='epsilon_insensitive', epsilon=0.05)
@@ -119,58 +89,45 @@ def sgdpredictor(xt, yt, xtest):
     return sgd.predict(xtest)
 
 # PREDICTOR 6: GAUSSIAN PROCESSES
-
-
 def gausspredictor(xt, yt, xtest):
     kernel = DotProduct()
     gauss = GaussianProcessRegressor(kernel=kernel, random_state=0)
     gauss.fit(xt, yt)
     return gauss.predict(xtest)
 
-# Part2
+# PREDICTORS ADDED FOR PART 2
+
 # PREDICTOR 7: ELASTIC NET
-
-
 def enpredictor(xt, yt, xtest):
     en = ElasticNet(random_state=0)
     en.fit(xt, yt)
     return en.predict(xtest)
 
 # PREDICTOR 8: ORTHOGONAL MATCHING PURSUIT
-
-
 def omppredictor(xt, yt, xtest):
     omp = OrthogonalMatchingPursuit(normalize=False)
     omp.fit(xt, yt)
     return omp.predict(xtest)
 
 # PREDICTOR 9: LARS
-
-
 def larspredictor(xt, yt, xtest):
     lar = linear_model.Lars(n_nonzero_coefs=1, normalize=False)
     lar.fit(xt, yt)
     return lar.predict(xtest)
 
 # PREDICTOR 10: LARS LASSO
-
-
 def larslassopredictor(xt, yt, xtest):
     lars_lasso = linear_model.LassoLars(alpha=.1, normalize=False)
     lars_lasso.fit(xt, yt)
     return lars_lasso.predict(xtest)
 
 # PREDICTOR 11: BAYES RIDGE
-
-
 def bayesridgepredictor(xt, yt, xtest):
     bayesridge = linear_model.BayesianRidge()
     bayesridge.fit(xt, yt)
     return bayesridge.predict(xtest)
 
 # PREDICTOR 12: RANSAC REGRESSION
-
-
 def ransacpredictor(xt, yt, xtest):
     regsvm = svm.LinearSVR(epsilon=0.05, random_state=2)
     ransac = RANSACRegressor(
@@ -179,8 +136,6 @@ def ransacpredictor(xt, yt, xtest):
     return ransac.predict(xtest)
 
 # SQUARED ERRORS
-
-
 def sse(y, yt):
     # calculate the squared erros using the training set yt when compared to a predicted set in y
     # yt: training set
@@ -188,8 +143,6 @@ def sse(y, yt):
     return np.array((y-yt)**2).sum()
 
 # CROSS VALIDATION
-
-
 def cross_val(xt, yt, k, func, *args):
     # train the data set using k data sets obtained by dividing the training
     # set into k sets each with a section excluded to use as a test set. This
@@ -321,7 +274,6 @@ def cross_val(xt, yt, k, func, *args):
     # print('The mean SSE for '+str(k)+'-folds using predictor '+func+' is '+str(np.mean(errors)))
     return np.mean(errors)
 
-
 def bestlasso(lassovector, xt, yt):
     bestl = 0
     minerror = 1000000
@@ -334,7 +286,6 @@ def bestlasso(lassovector, xt, yt):
 
 # %% CHOOSE LAMBDA FOR LASSO AND RIDGE (DON'T RUN)
 # Compare cross validation errors between different lambda values
-
 
 l = np.logspace(-6, -3, 10000)
 cv_lr_k5 = cross_val(x_train_1, y_train_1, 5, 'lr')
@@ -350,7 +301,6 @@ np.save('Data/Other/cv_ridge_k5_10000.npy', cv_ridge_k5)
 np.save('Data/Other/cv_lasso_k5_10000.npy', cv_lasso_k5)
 
 # %% Plot and save error vs lambda for ridge and lasso
-
 l = np.logspace(-6, -3, 10000)
 cv_lr_k5 = cross_val(x_train_1, y_train_1, 5, 'lr')
 cv_ridge_k5 = np.load('Data/Other/cv_ridge_k5_10000.npy')
@@ -375,7 +325,6 @@ plt.savefig('comparelambdaserror.eps', format="eps")
 del l
 
 # %% TEST FUNCTION - Compute erros with chosen lambda values
-
 cv_lr_k5 = cross_val(x_train_1, y_train_1, 5, 'lr')
 cv_lr_k10 = cross_val(x_train_1, y_train_1, 10, 'lr')
 cv_ridge_k5 = cross_val(x_train_1, y_train_1, 5, 'ridge', l_ridge)
@@ -465,8 +414,6 @@ plt.grid(linestyle='--', linewidth=0.5)
 
 # %% PART 2
 # %% Outlier Detection And Removal
-
-
 cd = os.getcwd()
 
 x_train_2 = np.load(cd+'/Data/Xtrain_Regression_Part2.npy')
@@ -544,7 +491,6 @@ def outlierremoval(xt, yt, k, func):
         xt, yt = dbscan(xt, yt, k)
 
     return xt, yt
-
 
 
 # %% Selecting all predictors and all outlier detectors to compare
@@ -799,31 +745,6 @@ print('Error in best case: ', cross_val(xtrain, ytrain, 5, 'svmlinear'))
 
 y_pred = svmlinearpredictor(xtrain, ytrain, x_test_2)
 np.save('Data/YPred_Regression_Part2.npy', y_pred)
-
-#####################################           PAREI DE LIMPAR AQUI      ######################################
-
-# %% Plot error vs contamination in EE
-er = []
-size = []
-for cont in cont_v:
-    xtrain, ytrain = outlierremoval(
-        addyt(x_train_2, y_train_2), y_train_2, cont, 'ee')
-    xtrain = deleteyt(xtrain)
-    er += [cross_val(xtrain, ytrain, 5, 'huber')]
-    size += [len(xtrain)]
-
-plt.plot(cont_v, er)
-# plt.yscale('log')
-plt.ylabel("error")
-plt.xlabel("contamination")
-plt.figure()
-plt.plot(cont_v, size)
-# plt.yscale('log')
-plt.ylabel("size of xtrain")
-plt.xlabel("contamination")
-plt.grid()
-plt.show()
-
 
 # %% TEST
 print('Without outlier detection: ')
@@ -1148,22 +1069,6 @@ plt.tight_layout()
 plt.legend(loc='best')
 # plt.savefig('comparelambdaserror.eps', format="eps")
 
-# For the obtained distance value, calculate error with other predictors
-
-# But first, lambda for ridge and lasso
-# l = np.logspace(-6, 3, 1000)
-# cv_ridge_k5_dbs =[]
-# cv_lasso_k5_dbs =[]
-# dbs = DBSCAN(eps=dist_sgd_dbs, min_samples=2)
-# mask = dbs.fit_predict(x_train_2)
-# isin = mask != 0
-# x_train_2_dbs, y_train_2_dbs = x_train_2[isin, :], y_train_2[isin]
-# for i in range(len(l)):
-#     cv_ridge_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'ridge',l[i])]
-#     cv_lasso_k5_dbs += [cross_val(x_train_2_dbs,y_train_2_dbs,5,'lasso',l[i])]
-
-# l_lasso_dbs=l[np.where(cv_lasso_k5_dbs==np.min(cv_lasso_k5_dbs))[0][0]]
-# l_ridge_dbs=l[np.where(cv_ridge_k5_dbs==np.min(cv_ridge_k5_dbs))[0][0]]
 
 
 cv_lr_k5_dbs = cross_val(x_train_2_dbs, y_train_2_dbs, 5, 'lr')
@@ -1190,8 +1095,6 @@ cv_larslasso_k5_dbs = cross_val(x_train_2_dbs, y_train_2_dbs, 5, 'larslasso')
 print('\n')
 cv_bayesridge_k5_dbs = cross_val(x_train_2_dbs, y_train_2_dbs, 5, 'bayesridge')
 
-
-########
 
 dbs = DBSCAN(eps=dist_sgd_dbs, min_samples=2)
 mask = dbs.fit_predict(x_train_2)
