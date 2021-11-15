@@ -16,9 +16,9 @@ from sklearn.gaussian_process.kernels import DotProduct
 from sklearn.linear_model import ElasticNet
 from sklearn.linear_model import OrthogonalMatchingPursuit
 from sklearn.linear_model import RANSACRegressor
-from sklearn.linear_model import HuberRegressor
 from matplotlib.patches import Rectangle
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import tree
 
 import warnings
 
@@ -75,7 +75,11 @@ def lassopredictor(xt, yt, l, xtest):
     # I checked and it is the same as calculating beta and doing y=X*beta
     return lassoreg.predict(xtest)
 
+<<<<<<< HEAD
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
+=======
+# PREDICTOR 4: SUPPORT VECTOR regression
+>>>>>>> c51fc3c3715a284fcdf06685b9455d110d712690
 def svmlinearpredictor(xt, yt, xtest):
     regsvm = svm.LinearSVR(epsilon=0.07, random_state=2, max_iter=100000)
     regsvm.fit(xt, yt)
@@ -95,7 +99,31 @@ def gausspredictor(xt, yt, xtest):
     gauss.fit(xt, yt)
     return gauss.predict(xtest)
 
+<<<<<<< HEAD
 # PREDICTORS ADDED FOR PART 2
+=======
+# PREDICTOR extra 1: regular SUPPORT VECTOR MACHINES
+def regularsvmpredictor(xt, yt, xtest):
+    regr = svm.SVR()
+    regr.fit(xt, yt)
+    return regr.predict(xtest)
+
+# PREDICTOR extra 2: KNN
+def knnpredictor(xt, yt, xtest):
+    neigh = KNeighborsRegressor(n_neighbors=3)
+    neigh.fit(xt, yt)
+    return neigh.predict(xtest)
+
+# PREDICTOR extra 3: NAIVE BAYES
+def treepredictor(xt, yt, xtest):
+    t = tree.DecisionTreeRegressor()
+    t.fit(xt, yt)
+    return t.predict(xtest)
+
+# Part2
+# PREDICTOR 7: ELASTIC NET
+
+>>>>>>> c51fc3c3715a284fcdf06685b9455d110d712690
 
 # PREDICTOR 7: ELASTIC NET
 def enpredictor(xt, yt, xtest):
@@ -251,7 +279,31 @@ def cross_val(xt, yt, k, func, *args):
             # outcomes predicted using linear regression model
             y_pred[i, :] = larslassopredictor(
                 x_train[i, :, :], y_train[i, :], x_test[i, :, :])
-
+            
+    elif func == 'knn':
+        # using the predictor, generate the outcomes using the k different sets determined agove
+        y_pred = np.empty((k, fold))
+        for i in range(k):
+            # outcomes predicted using linear regression model
+            y_pred[i, :] = knnpredictor(
+                x_train[i, :, :], y_train[i, :], x_test[i, :, :])
+            
+    elif func == 'tree':
+        # using the predictor, generate the outcomes using the k different sets determined agove
+        y_pred = np.empty((k, fold))
+        for i in range(k):
+            # outcomes predicted using linear regression model
+            y_pred[i, :] = treepredictor(
+                x_train[i, :, :], y_train[i, :], x_test[i, :, :])
+            
+    elif func == 'svm':
+        # using the predictor, generate the outcomes using the k different sets determined agove
+        y_pred = np.empty((k, fold))
+        for i in range(k):
+            # outcomes predicted using linear regression model
+            y_pred[i, :] = regularsvmpredictor(
+                x_train[i, :, :], y_train[i, :], x_test[i, :, :])
+            
     elif func == 'bayesridge':
         y_pred = np.empty((k, fold))
         for i in range(k):
@@ -342,7 +394,7 @@ k5 = [cv_lr_k5, cv_ridge_k5, cv_lasso_k5, cv_svmlin_k5, cv_sgd_k5, cv_gauss_k5]
 k10 = [cv_lr_k10, cv_ridge_k10, cv_lasso_k10,
        cv_svmlin_k10, cv_sgd_k10, cv_gauss_k10]
 
-del cv_lr_k5, cv_lr_k10, cv_ridge_k5, cv_ridge_k10, cv_lasso_k5, cv_lasso_k10, cv_svmlin_k10, cv_svmlin_k5, cv_sgd_k5, cv_sgd_k10, cv_gauss_k10, cv_gauss_k5
+#del cv_lr_k5, cv_lr_k10, cv_ridge_k5, cv_ridge_k10, cv_lasso_k5, cv_lasso_k10, cv_svmlin_k10, cv_svmlin_k5, cv_sgd_k5, cv_sgd_k10, cv_gauss_k10, cv_gauss_k5
 
 # %% PLOT BAR CHART
 # Compara erros between the different predictors
