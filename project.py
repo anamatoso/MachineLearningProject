@@ -75,11 +75,7 @@ def lassopredictor(xt, yt, l, xtest):
     # I checked and it is the same as calculating beta and doing y=X*beta
     return lassoreg.predict(xtest)
 
-<<<<<<< HEAD
 # PREDICTOR 4: SUPPORT VECTOR MACHINES
-=======
-# PREDICTOR 4: SUPPORT VECTOR regression
->>>>>>> c51fc3c3715a284fcdf06685b9455d110d712690
 def svmlinearpredictor(xt, yt, xtest):
     regsvm = svm.LinearSVR(epsilon=0.07, random_state=2, max_iter=100000)
     regsvm.fit(xt, yt)
@@ -99,9 +95,6 @@ def gausspredictor(xt, yt, xtest):
     gauss.fit(xt, yt)
     return gauss.predict(xtest)
 
-<<<<<<< HEAD
-# PREDICTORS ADDED FOR PART 2
-=======
 # PREDICTOR extra 1: regular SUPPORT VECTOR MACHINES
 def regularsvmpredictor(xt, yt, xtest):
     regr = svm.SVR()
@@ -121,10 +114,6 @@ def treepredictor(xt, yt, xtest):
     return t.predict(xtest)
 
 # Part2
-# PREDICTOR 7: ELASTIC NET
-
->>>>>>> c51fc3c3715a284fcdf06685b9455d110d712690
-
 # PREDICTOR 7: ELASTIC NET
 def enpredictor(xt, yt, xtest):
     en = ElasticNet(random_state=0)
